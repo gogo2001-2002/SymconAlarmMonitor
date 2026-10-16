@@ -303,48 +303,56 @@
         },
         {
           "name": "PushOnFirst",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "PushOnEscalation",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "EmailOnFirst",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "EmailOnEscalation",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "CallOnFirst",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "CallOnEscalation",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "EchoOnFirst",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
         },
         {
           "name": "EchoOnEscalation",
+          "default": false,
           "visible": false,
           "add": true,
           "save": true
@@ -472,11 +480,13 @@
             {
               "type": "CheckBox",
               "name": "PushOnFirst",
+              "default": false,
               "caption": "Erstmeldung"
             },
             {
               "type": "CheckBox",
               "name": "PushOnEscalation",
+              "default": false,
               "caption": "Eskalation"
             }
           ]
@@ -636,11 +646,13 @@
             {
               "type": "CheckBox",
               "name": "EmailOnFirst",
+              "default": false,
               "caption": "Erstmeldung"
             },
             {
               "type": "CheckBox",
               "name": "EmailOnEscalation",
+              "default": false,
               "caption": "Eskalation"
             }
           ]
@@ -665,11 +677,13 @@
             {
               "type": "CheckBox",
               "name": "CallOnFirst",
+              "default": false,
               "caption": "Erstmeldung"
             },
             {
               "type": "CheckBox",
               "name": "CallOnEscalation",
+              "default": false,
               "caption": "Eskalation"
             }
           ]
@@ -694,11 +708,13 @@
             {
               "type": "CheckBox",
               "name": "EchoOnFirst",
+              "default": false,
               "caption": "Erstmeldung"
             },
             {
               "type": "CheckBox",
               "name": "EchoOnEscalation",
+              "default": false,
               "caption": "Eskalation"
             }
           ]
