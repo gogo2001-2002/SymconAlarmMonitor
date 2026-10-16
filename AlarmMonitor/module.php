@@ -527,7 +527,7 @@ class AlarmMonitor extends IPSModule
                 if (GetValueBoolean($alarmID)) {
                     SetValueBoolean($alarmID, false);
                 }
-                $this->SetEscalationState($rule, false);
+                $this->SetEscalationCount($rule, 0);
                 $states[$key]['since'] = 0;
                 $states[$key]['alarm'] = false;
                 $states[$key]['alarmSince'] = 0;
@@ -615,7 +615,7 @@ class AlarmMonitor extends IPSModule
         $intervalMinutes = max(0, min(10080, (int)($rule['EscalationMinutes'] ?? 0)));
 
         if (!$isActive) {
-            $this->SetEscalationState($rule, false);
+            $this->SetEscalationCount($rule, 0);
             $state['alarmSince'] = 0;
             $state['nextEscalationAt'] = 0;
             return;
@@ -640,7 +640,7 @@ class AlarmMonitor extends IPSModule
 
         if ($now >= $nextEscalationAt) {
             $this->SendDebug('Escalation', 'Alarm bleibt aktiv; sende Wiederholungsbenachrichtigung für Regel ' . $rule['StateKey'] . '.', 0);
-            $this->SetEscalationState($rule, true);
+            $this->IncrementEscalationCount($rule);
             $alarmSince = (int)$state['alarmSince'];
             $this->SendPushForRule($rule, $alarmSince, true);
             $this->SendEmailForRule($rule, $alarmSince, true);
@@ -1040,23 +1040,48 @@ class AlarmMonitor extends IPSModule
         $conditionName = $this->ConditionName($operator, $compareValue, $useCompareVariable, $compareVariableID);
         $alarmText = trim($alarmText) !== '' ? trim($alarmText) : 'Alarm';
         $name = $alarmText . ' – Eskalation – Variable-ID: ' . $variableID . ' – ' . $conditionName . ' – Verzögerung: ' . $delay . ' s';
+
+        // Bestehende boolesche Eskalationsvariable auf den neuen Integer-Typ migrieren.
+        if ($escalationID !== false) {
+            $variable = @IPS_GetVariable((int)$escalationID);
+            if (!is_array($variable) || (int)($variable['VariableType'] ?? -1) !== 1) {
+                IPS_DeleteVariable((int)$escalationID);
+                $escalationID = false;
+            }
+        }
+
         if ($escalationID === false) {
-            $escalationID = $this->RegisterVariableBoolean($ident, $name, '~Alert', 1000 + $index);
+            $escalationID = $this->RegisterVariableInteger($ident, $name, '', 1000 + $index);
             IPS_SetHidden($escalationID, false);
-            SetValueBoolean($escalationID, false);
+            SetValueInteger($escalationID, 0);
         } else {
             IPS_SetName($escalationID, $name);
         }
         return (int)$escalationID;
     }
 
-    private function SetEscalationState(array $rule, bool $active): void
+    /** Setzt den Eskalationszähler zurück oder aktualisiert ihn auf einen definierten Wert. */
+    private function SetEscalationCount(array $rule, int $count): void
     {
         $ident = (string)($rule['EscalationIdent'] ?? '');
         if ($ident === '') return;
         $escalationID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-        if ($escalationID !== false && GetValueBoolean($escalationID) !== $active) {
-            SetValueBoolean($escalationID, $active);
+        if ($escalationID !== false && IPS_VariableExists((int)$escalationID)) {
+            $count = max(0, $count);
+            if (GetValueInteger((int)$escalationID) !== $count) {
+                SetValueInteger((int)$escalationID, $count);
+            }
+        }
+    }
+
+    /** Erhöht den Zähler bei jeder ausgelösten Eskalationsbenachrichtigung um eins. */
+    private function IncrementEscalationCount(array $rule): void
+    {
+        $ident = (string)($rule['EscalationIdent'] ?? '');
+        if ($ident === '') return;
+        $escalationID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+        if ($escalationID !== false && IPS_VariableExists((int)$escalationID)) {
+            SetValueInteger((int)$escalationID, GetValueInteger((int)$escalationID) + 1);
         }
     }
 
