@@ -655,12 +655,31 @@ class AlarmMonitor extends IPSModule
      * Formatiert den Alarmtext abhängig von der Phase. Bei Eskalationen wird der Präfix
      * genau einmal ergänzt; bei Erstmeldungen bleibt der eigentliche Alarmtext unverändert.
      */
-    private function FormatNotificationAlarmText(string $alarmText, bool $escalation): string
+    private function FormatNotificationAlarmText(string $alarmText, bool $escalation, array $rule): string
     {
         $alarmText = trim($alarmText);
-        // Einen bereits vorhandenen Präfix entfernen, damit er bei Eskalationen nie doppelt erscheint.
-        $alarmText = preg_replace('/^Eskalation:\s*/iu', '', $alarmText) ?? $alarmText;
-        return ($escalation && $alarmText !== '') ? 'Eskalation: ' . $alarmText : $alarmText;
+        // Einen bereits vorhandenen Eskalationspräfix entfernen, damit er nie doppelt erscheint.
+        $alarmText = preg_replace('/^(?:\\d+\\.\\s*)?Eskalation:\\s*/iu', '', $alarmText) ?? $alarmText;
+        if (!$escalation || $alarmText === '') {
+            return $alarmText;
+        }
+
+        $count = $this->GetEscalationCount($rule);
+        return $count . '. Eskalation: ' . $alarmText;
+    }
+
+    /** Liefert die aktuelle Nummer der Eskalation für die Benachrichtigung. */
+    private function GetEscalationCount(array $rule): int
+    {
+        $ident = (string)($rule['EscalationIdent'] ?? '');
+        if ($ident === '') {
+            return 0;
+        }
+        $escalationID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+        if ($escalationID === false || !IPS_VariableExists((int)$escalationID)) {
+            return 0;
+        }
+        return max(0, GetValueInteger((int)$escalationID));
     }
 
     /**
@@ -697,7 +716,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation);
+        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
         foreach ($phoneNumbers as $phoneNumber) {
             try {
                 // Öffentliche API des eigenständigen TelefonansageDirekt-Moduls:
@@ -752,7 +771,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation);
+        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
 
         $instanceIDs = array_values(array_unique(array_filter(
             array_map(static fn(string $id): int => (int)trim($id), explode(',', $instanceText)),
@@ -811,7 +830,7 @@ class AlarmMonitor extends IPSModule
         }
 
         $pushText = trim((string)($rule['PushText'] ?? ''));
-        $notificationText = $this->FormatNotificationAlarmText($pushText, $escalation);
+        $notificationText = $this->FormatNotificationAlarmText($pushText, $escalation, $rule);
 
         $variableID = (int)($rule['VariableID'] ?? 0);
         if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
@@ -919,7 +938,7 @@ class AlarmMonitor extends IPSModule
             return;
         }
 
-        $pushText = $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation);
+        $pushText = $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation, $rule);
         $variableName = $this->TruncateText(IPS_GetName($variableID), 25);
         $condition = $this->ConditionName((string)($rule['Operator'] ?? '=='), (string)($rule['CompareValue'] ?? ''), ((int)($rule['CompareVariableID'] ?? 0) > 0), (int)($rule['CompareVariableID'] ?? 0));
         $condition = $this->TruncateText($condition, 24);
