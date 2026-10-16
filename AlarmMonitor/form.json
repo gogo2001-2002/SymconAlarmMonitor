@@ -756,31 +756,31 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.47"
+      "caption": "AlarmMonitor – Modulversion 1.50"
     },
     {
       "type": "Label",
-      "caption": "IP-Symcon AlarmMonitor: Überwacht Variablen anhand konfigurierbarer Bedingungen, Vergleichswerte und Verzögerungen. Jede Regel besitzt den Schalter „Aktion aktiv“. Ist dieser ausgeschaltet, werden für die Regel weder Erstmeldungen noch Eskalationen ausgegeben. Pro Regel wird für Push, Mail, Anruf und Echo jeweils unabhängig festgelegt, ob die Aktion bei „Erstmeldung“, bei „Eskalation“ oder bei beiden Phasen erfolgen soll. Für Push können bis zu vier Visualisierungen und für Echo bis zu vier Echo-Remote-Instanzen ausgewählt werden. E-Mail-Empfänger und Telefonnummern werden kommasepariert eingetragen. Die Eskalation wiederholt nur die für diese Phase aktivierten Aktionen im eingestellten Minutenabstand, solange der Alarm aktiv bleibt; 0 Minuten deaktiviert Wiederholungen. Unterstützt werden Wertvergleiche sowie „Variable verändert“ und „Variable aktualisiert“. Die Vergleichsquelle wird automatisch gewählt: Ist eine Vergleichsvariable eingetragen, wird ausschließlich deren aktueller Inhalt verwendet; ohne ausgewählte Vergleichsvariable gilt ausschließlich der feste Vergleichswert. Das Feld „Push-Ton“ steht im Detailfenster in einer eigenen Zeile unter den Phasenflags."
+      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen möglich. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
     },
     {
       "type": "Label",
-      "caption": "Bedingungen und Zeitsteuerung: Bei „Variable verändert“ ist der Vergleichswert ohne Bedeutung. Die Zeit gibt an, wie lange kein VM_UPDATE-Ereignis eintreffen darf. Bei „Variable aktualisiert“ wird der IP-Symcon-Zeitstempel VariableUpdated geprüft; so werden auch Aktualisierungen mit unverändertem Wert und Aktualisierungen vor einem Modul-/Symcon-Neustart berücksichtigt. Bei beiden Bedingungen löst der Alarm aus, wenn die konfigurierte Zeit ohne passende Aktualisierung überschritten ist. „Verzögerung“ legt fest, wie lange die Alarmbedingung anliegen muss. „Eskalation (Min.)“ bestimmt den Abstand zwischen Wiederholungen, solange der Alarm aktiv bleibt. Der Wert 0 deaktiviert Eskalationswiederholungen. Bei jeder Eskalationsausgabe wird vor dem Alarmtext „Eskalation: “ ergänzt; bei der Erstmeldung bleibt der Alarmtext unverändert."
+      "caption": "Bedingungen und Zeitsteuerung: Wertvergleiche prüfen den aktuellen Wert. „Variable verändert“ überwacht ausbleibende Änderungen; „Variable aktualisiert“ berücksichtigt den Zeitstempel auch bei unverändertem Wert. „Verzögerung“ bestimmt die Mindestdauer der Bedingung. „Eskalation (Min.)“ legt den Wiederholungsabstand fest; 0 deaktiviert Wiederholungen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
     },
     {
       "type": "Label",
-      "caption": "Push: Die beiden Flags „Erstmeldung“ und „Eskalation“ steuern unabhängig, in welchen Phasen Push-Nachrichten gesendet werden. Bis zu vier WebFront- oder Kachel-Visualisierungen pro Regel auswählen. Push-Ton und Alarmtext werden pro Regel festgelegt. Der Titel lautet „Alarmmonitor“. Eine Push-Nachricht wird nur gesendet, wenn „Aktion aktiv“ eingeschaltet, das Flag für die jeweilige Phase aktiviert und mindestens eine gültige Visualisierung ausgewählt ist. Bei Eskalationen beginnt der Meldungstext mit „Eskalation: “; bei Erstmeldungen wird nur der Alarmtext ausgegeben. Die Nachricht enthält zusätzlich kompakt überwachte Variable mit ID, Bedingung, Verzögerung, Auslösezeitpunkt (24-Stunden-Format) und aktuellen Variablenwert. IP-Symcon begrenzt den Push-Nachrichtentext auf 256 Zeichen, daher können lange Texte oder Details gekürzt werden."
+      "caption": "Push: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Pro Regel bis zu vier Visualisierungen auswählen und einen Push-Ton festlegen. Ohne aktive Regel, aktiviertes Phasenflag oder gültige Visualisierung wird kein Push gesendet. Die Nachricht ist auf 256 Zeichen begrenzt."
     },
     {
       "type": "Label",
-      "caption": "Mail: Oben eine globale E-Mail-/SMTP-Instanz auswählen. Die Flags „Erstmeldung“ und „Eskalation“ steuern unabhängig, in welchen Phasen E-Mails gesendet werden. Pro Regel können bis zu 256 Zeichen mit kommaseparierten E-Mail-Adressen eingetragen werden. Ohne gültige Empfänger wird der Versand übersprungen. Der Betreff lautet „Alarmmanager : “ gefolgt vom Meldungstext. Der Nachrichtentext enthält Meldung, überwachte Variable, Bedingung inklusive Vergleichswert, Verzögerung, Auslösezeitpunkt (24-Stunden-Format) und aktuellen Variablenwert. Bei Eskalationen stehen Betreff und Nachrichtentext mit „Eskalation: “ vor dem Alarmtext; bei Erstmeldungen bleibt er unverändert."
+      "caption": "Mail: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Empfänger kommasepariert eintragen. Ohne gültige Empfänger wird keine Mail gesendet. Betreff und Nachricht enthalten bei Eskalationen „Eskalation: “ vor dem Alarmtext."
     },
     {
       "type": "Label",
-      "caption": "Anruf: Oben einmalig die vorhandene TelefonansageDirekt-Instanz auswählen. Die Flags „Erstmeldung“ und „Eskalation“ steuern unabhängig, in welchen Phasen Anrufe durchgeführt werden. Pro Regel können bis zu 256 Zeichen mit kommaseparierten Telefonnummern eingetragen werden. Ohne Telefonnummer wird kein Anruf gestartet. Der Alarmtext wird über TAD_StartCall() an das eigenständige TelefonansageDirekt-Modul übergeben; dieses verwaltet SIP-Verbindung und FIFO-Warteschlange. Bei Eskalationsanrufen wird „Eskalation: “ vor den Alarmtext gesetzt; Erstmeldungen verwenden nur den Alarmtext."
+      "caption": "Anruf: „Erstmeldung“ und „Eskalation“ steuern Anrufe je Phase. Telefonnummern kommasepariert eintragen. Ohne gültige Telefonnummer wird kein Anruf gestartet. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
     },
     {
       "type": "Label",
-      "caption": "Echo: Echo Remote 2 muss installiert und eingerichtet sein. Die Flags „Erstmeldung“ und „Eskalation“ steuern unabhängig, in welchen Phasen Echo-Ansagen ausgegeben werden. Pro Regel können bis zu vier EchoRemote-Instanzen über die Auswahlfelder ausgewählt werden. Die Auswahllisten enthalten erkannte EchoRemote-Instanzen mit Name und ID. Ohne ausgewähltes Echo-Gerät wird keine Ansage ausgegeben. Der Alarmtext wird über ECHOREMOTE_Announcement(InstanzID, Text) ausgegeben. Bei Eskalationen wird „Eskalation: “ vorangestellt; bei Erstmeldungen bleibt der Alarmtext unverändert."
+      "caption": "Echo: „Erstmeldung“ und „Eskalation“ steuern Ansagen je Phase. Pro Regel bis zu vier EchoRemote-Instanzen auswählen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
     }
   ],
   "actions": []
