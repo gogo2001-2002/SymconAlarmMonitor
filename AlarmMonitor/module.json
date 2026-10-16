@@ -1,0 +1,16 @@
+{
+  "id": "{C8D5A0B1-7E31-4A9D-9B2E-6A4F2C1D8E70}",
+  "name": "AlarmMonitor",
+  "type": 3,
+  "vendor": "Custom",
+  "aliases": [
+    "Alarmüberwachung",
+    "Variablenalarm"
+  ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "ALM",
+  "version": "1.49",
+  "build": 1
+}
