@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.50
+AlarmMonitor – Modulversion 1.51
 
-# IP-Symcon AlarmMonitor 1.50
+# IP-Symcon AlarmMonitor 1.51
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
 
@@ -12,3 +12,7 @@ Bei Eskalationsmeldungen wird „Eskalation: “ vor den Alarmtext gesetzt. Die 
 
 ## Bedingungen
 Unterstützt werden Wertvergleiche sowie „Variable verändert“ und „Variable aktualisiert“. Verzögerung und Eskalationsintervall werden je Regel konfiguriert. E-Mail-Adressen und Telefonnummern kommasepariert eingeben.
+
+
+## Standardwerte in neuen Regeln (Version 1.51)
+Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalation“ für Push, Mail, Anruf und Echo standardmäßig deaktiviert. Benachrichtigungen werden erst ausgeführt, wenn die jeweilige Phase ausdrücklich aktiviert wird.
