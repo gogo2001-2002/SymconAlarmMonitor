@@ -22,6 +22,7 @@ jobs:
           test -f AlarmMonitor/module.php
           test -f AlarmMonitor/module.json
           test -f AlarmMonitor/form.json
+          php -l AlarmMonitor/module.php
           php -r '$m=json_decode(file_get_contents("AlarmMonitor/module.json"), true, 512, JSON_THROW_ON_ERROR); $l=json_decode(file_get_contents("library.json"), true, 512, JSON_THROW_ON_ERROR); if (($m["version"] ?? null) !== ($l["version"] ?? null)) { fwrite(STDERR, "Version mismatch between module.json and library.json\n"); exit(1); } if ("v".$m["version"] !== getenv("GITHUB_REF_NAME")) { fwrite(STDERR, "Git tag must match module version (for example v1.50)\n"); exit(1); } echo "Module version ".$m["version"]." validated.\n";'
 
       - name: Create installable ZIP
