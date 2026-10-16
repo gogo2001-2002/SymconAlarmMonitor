@@ -324,24 +324,14 @@ class AlarmMonitor extends IPSModule
                 $rulesChanged = true;
             }
 
-            // Rückwärtskompatibilität: Regeln aus Versionen vor den Phasenflags
-            // haben keinen einzigen dieser Schlüssel. Für solche Altregeln bleiben
-            // Erstmeldung und Eskalation zunächst aktiviert.
-            // Sobald mindestens ein Phasenflag vorhanden ist, bedeutet ein fehlender
-            // Schlüssel dagegen „nicht ausgewählt“ (Symcon kann deaktivierte Checkboxen
-            // je nach Formularzustand aus der Liste auslassen). Insbesondere darf ein
-            // abgewähltes CallOnFirst nicht versehentlich wieder aktiviert werden.
+            // Neue Regeln verwenden sichere Standardwerte: Erstmeldung und Eskalation
+            // sind deaktiviert, bis der Anwender sie ausdrücklich einschaltet.
+            // Fehlende Checkbox-Schlüssel werden als deaktiviert interpretiert, da
+            // Symcon nicht ausgewählte Checkboxen aus der Regelliste auslassen kann.
             $phaseFlags = ['PushOnFirst', 'PushOnEscalation', 'EmailOnFirst', 'EmailOnEscalation', 'CallOnFirst', 'CallOnEscalation', 'EchoOnFirst', 'EchoOnEscalation'];
-            $hasAnyPhaseFlag = false;
-            foreach ($phaseFlags as $phaseFlag) {
-                if (array_key_exists($phaseFlag, $configuredRule)) {
-                    $hasAnyPhaseFlag = true;
-                    break;
-                }
-            }
             foreach ($phaseFlags as $phaseFlag) {
                 if (!array_key_exists($phaseFlag, $configuredRule)) {
-                    $configuredRule[$phaseFlag] = !$hasAnyPhaseFlag;
+                    $configuredRule[$phaseFlag] = false;
                     $rulesChanged = true;
                 }
             }
