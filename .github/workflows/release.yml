@@ -1,0 +1,35 @@
+name: Build and publish release ZIP
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate module metadata
+        run: |
+          test -f README.md
+          test -f library.json
+          test -f AlarmMonitor/module.php
+          test -f AlarmMonitor/module.json
+          test -f AlarmMonitor/form.json
+          php -r '$m=json_decode(file_get_contents("AlarmMonitor/module.json"), true, 512, JSON_THROW_ON_ERROR); $l=json_decode(file_get_contents("library.json"), true, 512, JSON_THROW_ON_ERROR); if (($m["version"] ?? null) !== ($l["version"] ?? null)) { fwrite(STDERR, "Version mismatch between module.json and library.json\n"); exit(1); } if ("v".$m["version"] !== getenv("GITHUB_REF_NAME")) { fwrite(STDERR, "Git tag must match module version (for example v1.50)\n"); exit(1); } echo "Module version ".$m["version"]." validated.\n";'
+
+      - name: Create installable ZIP
+        run: |
+          zip -r "SymconAlarmMonitor-${GITHUB_REF_NAME}.zip" README.md library.json AlarmMonitor
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: SymconAlarmMonitor-${{ github.ref_name }}.zip
