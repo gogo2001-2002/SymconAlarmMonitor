@@ -1,0 +1,39 @@
+{
+  "elements": [
+    {
+      "type": "Label",
+      "caption": "NACHRICHTENZENTRALE"
+    },
+    {
+      "type": "Label",
+      "caption": "Nachrichten können mehrzeilig sein und bleiben mit Erstellungszeitpunkt gespeichert. Offene Nachrichten werden nicht automatisch gelöscht. Quittierte Nachrichten werden nach der unten eingestellten Frist ab Erstellung entfernt."
+    },
+    {
+      "type": "NumberSpinner",
+      "name": "RetentionDays",
+      "caption": "Aufbewahrung quittierter Nachrichten",
+      "suffix": " Tage",
+      "minimum": 1,
+      "maximum": 3650
+    },
+    {
+      "type": "Label",
+      "caption": "Skriptaufruf: IPS_RequestAction(INSTANZ_ID, \"AddMessage\", \"Nachrichtentext\");"
+    },
+    {
+      "type": "Label",
+      "caption": "Quittieren: IPS_RequestAction(INSTANZ_ID, \"AcknowledgeMessage\", \"NACHRICHTEN_ID\");"
+    },
+    {
+      "type": "Label",
+      "caption": "Die gespeicherten Nachrichten stehen als JSON in der Variable \"Nachrichten\" zur Verfügung. Vollständige Anleitung: https://github.com/gogo2001-2002/SymconAlarmMonitor/tree/main/MessageCenter"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Button",
+      "caption": "Bereinigung jetzt ausführen",
+      "onClick": "MSG_Cleanup($id);"
+    }
+  ]
+}

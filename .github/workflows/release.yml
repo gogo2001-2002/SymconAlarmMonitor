@@ -22,12 +22,16 @@ jobs:
           test -f AlarmMonitor/module.php
           test -f AlarmMonitor/module.json
           test -f AlarmMonitor/form.json
+          test -f MessageCenter/module.php
+          test -f MessageCenter/module.json
+          test -f MessageCenter/form.json
           php -l AlarmMonitor/module.php
-          php -r '$m=json_decode(file_get_contents("AlarmMonitor/module.json"), true, 512, JSON_THROW_ON_ERROR); $l=json_decode(file_get_contents("library.json"), true, 512, JSON_THROW_ON_ERROR); if (($m["version"] ?? null) !== ($l["version"] ?? null)) { fwrite(STDERR, "Version mismatch between module.json and library.json\n"); exit(1); } if ("v".$m["version"] !== getenv("GITHUB_REF_NAME")) { fwrite(STDERR, "Git tag must match module version (for example v1.50)\n"); exit(1); } echo "Module version ".$m["version"]." validated.\n";'
+          php -l MessageCenter/module.php
+          php -r '$l=json_decode(file_get_contents("library.json"), true, 512, JSON_THROW_ON_ERROR); foreach (["AlarmMonitor/module.json", "MessageCenter/module.json"] as $path) { $m=json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR); if (($m["version"] ?? null) !== ($l["version"] ?? null)) { fwrite(STDERR, "Version mismatch in ".$path."\n"); exit(1); } } if ("v".$l["version"] !== getenv("GITHUB_REF_NAME")) { fwrite(STDERR, "Git tag must match library version (for example v1.55)\n"); exit(1); } echo "Library version ".$l["version"]." validated.\n";'
 
       - name: Create installable ZIP
         run: |
-          zip -r "SymconAlarmMonitor-${GITHUB_REF_NAME}.zip" README.md library.json AlarmMonitor
+          zip -r "SymconAlarmMonitor-${GITHUB_REF_NAME}.zip" README.md library.json AlarmMonitor MessageCenter
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
