@@ -1,8 +1,8 @@
-AlarmMonitor – Modulversion 1.54
+AlarmMonitor – Modulversion 1.55
 
-# IP-Symcon AlarmMonitor 1.54
+# IP-Symcon AlarmMonitor 1.55
 
-Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
+Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf, Echo und Nachrichten lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
 
 ## Vergleichswert
 Ist eine Vergleichsvariable ausgewählt, wird ausschließlich deren aktueller Wert verwendet. Andernfalls gilt der feste Vergleichswert.
@@ -14,9 +14,18 @@ Bei Eskalationsmeldungen wird „N. Eskalation: “ vor den Alarmtext gesetzt. D
 Unterstützt werden Wertvergleiche sowie „Variable verändert“ und „Variable aktualisiert“. Verzögerung und Eskalationsintervall werden je Regel konfiguriert. E-Mail-Adressen und Telefonnummern kommasepariert eingeben.
 
 
-## Standardwerte in neuen Regeln (Version 1.54)
+## Standardwerte in neuen Regeln (Version 1.55)
 Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalation“ für Push, Mail, Anruf und Echo standardmäßig deaktiviert. Benachrichtigungen werden erst ausgeführt, wenn die jeweilige Phase ausdrücklich aktiviert wird.
 
 
-## Eskalationszähler (Version 1.54)
+## Eskalationszähler (Version 1.55)
 Die Variable „Eskalation“ ist ein Integer-Zähler. Sie wird bei jeder ausgelösten Eskalationsbenachrichtigung um eins erhöht und beim Zurücksetzen des Alarms auf 0 gesetzt. Vorhandene boolesche Eskalationsvariablen werden automatisch durch Integer-Variablen ersetzt.
+
+
+## Nachrichtenmodul
+
+Für jede Regel kann eine Nachrichteninstanz ausgewählt werden. „Erstmeldung“ und „Eskalation“ werden getrennt aktiviert. Die Auswahl zeigt ausschließlich Instanzen des Moduls **MessageCenter** (Modul-ID `{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}`).
+
+Die Alarmmeldung wird als mehrzeiliger Text gespeichert und enthält Meldung, überwachte Variable, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert. Bei Eskalationen wird – wie bei den anderen Alarmkanälen – der Eskalationspräfix ergänzt. Die Nachrichteninstanz verwaltet anschließend Quittierung und Aufbewahrung.
+
+Voraussetzung ist eine installierte und aktive Instanz des eigenständigen [Nachrichten-Moduls](https://github.com/gogo2001-2002/Nachrichten).
