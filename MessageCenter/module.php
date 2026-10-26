@@ -14,7 +14,7 @@ class MessageCenter extends IPSModule
 
         $this->RegisterPropertyInteger('RetentionDays', self::DEFAULT_RETENTION_DAYS);
         $this->RegisterVariableString(self::IDENT_MESSAGES, 'Nachrichten', '', 10);
-        $this->SetValueString(self::IDENT_MESSAGES, '[]');
+        $this->SetValue(self::IDENT_MESSAGES, '[]');
         $this->RegisterTimer('Cleanup', 86400000, "MSG_Cleanup(\$_IPS['TARGET']);");
     }
 
