@@ -356,6 +356,27 @@
           "visible": false,
           "add": false,
           "save": true
+        },
+        {
+          "name": "MessageCenterInstanceID",
+          "default": 0,
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "MessageOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "MessageOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
         }
       ],
       "form": [
@@ -767,16 +788,57 @@
               ]
             }
           ]
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "Nachrichten"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "MessageOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "MessageOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "Select",
+              "name": "MessageCenterInstanceID",
+              "caption": "Nachrichteninstanz",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.52"
+      "caption": "AlarmMonitor – Modulversion 1.55"
     },
     {
       "type": "Label",
-      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen möglich. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
+      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen oder eine Nachrichteninstanz möglich. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
     },
     {
       "type": "Label",
@@ -797,6 +859,10 @@
     {
       "type": "Label",
       "caption": "Echo: „Erstmeldung“ und „Eskalation“ steuern Ansagen je Phase. Pro Regel bis zu vier EchoRemote-Instanzen auswählen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
+    },
+    {
+      "type": "Label",
+      "caption": "Nachrichten: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Eine Instanz des Moduls „Nachrichten“ auswählen. Die Alarmmeldung wird mehrzeilig mit überwachten Variablen, Bedingung, Verzögerung, Zeitpunkt und aktuellem Wert an das Nachrichtenmodul übergeben."
     }
   ],
   "actions": []
