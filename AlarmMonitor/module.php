@@ -879,7 +879,16 @@ class AlarmMonitor extends IPSModule
                 'Aktueller Wert: ' . $this->FormatVariableValue($variableID)
             ]);
 
-            IPS_RequestAction($instanceID, 'AddMessage', $message);
+            $alarmState = $resolved ? 'resolved' : ($escalation ? 'escalation' : 'initial');
+            $payload = json_encode([
+                'source' => 'AlarmMonitor',
+                'text' => $message,
+                'alarmState' => $alarmState
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if (!is_string($payload)) {
+                throw new RuntimeException('Alarmnachricht konnte nicht serialisiert werden.');
+            }
+            IPS_RequestAction($instanceID, 'AddMessage', $payload);
             $this->SendDebug('MessageCenter', 'Mehrzeilige Alarmmeldung wurde an Nachrichteninstanz ' . $instanceID . ' übergeben.', 0);
         } catch (Throwable $e) {
             $this->SendDebug('MessageCenter', 'Fehler beim Übergeben der Alarmmeldung an Instanz ' . $instanceID . ': ' . $e->getMessage(), 0);
