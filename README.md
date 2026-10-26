@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.54
+AlarmMonitor – Modulversion 1.55
 
-# IP-Symcon AlarmMonitor 1.54
+# IP-Symcon AlarmMonitor 1.55
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
 
@@ -13,10 +13,11 @@ Bei Eskalationsmeldungen wird „N. Eskalation: “ vor den Alarmtext gesetzt. D
 ## Bedingungen
 Unterstützt werden Wertvergleiche sowie „Variable verändert“ und „Variable aktualisiert“. Verzögerung und Eskalationsintervall werden je Regel konfiguriert. E-Mail-Adressen und Telefonnummern kommasepariert eingeben.
 
+## MessageCenter
+Die Nachrichtenverwaltung ist als zusätzliches Modul in dieser Bibliothek enthalten. Sie speichert mehrzeilige Nachrichten bis zur Quittierung und löscht ausschließlich quittierte Nachrichten nach der konfigurierten Frist ab Erstellung. Dokumentation und Skript-API: [MessageCenter/README.md](MessageCenter/README.md).
 
 ## Standardwerte in neuen Regeln (Version 1.54)
 Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalation“ für Push, Mail, Anruf und Echo standardmäßig deaktiviert. Benachrichtigungen werden erst ausgeführt, wenn die jeweilige Phase ausdrücklich aktiviert wird.
-
 
 ## Eskalationszähler (Version 1.54)
 Die Variable „Eskalation“ ist ein Integer-Zähler. Sie wird bei jeder ausgelösten Eskalationsbenachrichtigung um eins erhöht und beim Zurücksetzen des Alarms auf 0 gesetzt. Vorhandene boolesche Eskalationsvariablen werden automatisch durch Integer-Variablen ersetzt.
