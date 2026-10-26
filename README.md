@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.55
+AlarmMonitor – Modulversion 1.56
 
-# IP-Symcon AlarmMonitor 1.55
+# IP-Symcon AlarmMonitor 1.56
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf, Echo und Nachrichten lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
 
@@ -24,8 +24,8 @@ Die Variable „Eskalation“ ist ein Integer-Zähler. Sie wird bei jeder ausgel
 
 ## Nachrichtenmodul
 
-Für jede Regel kann eine Nachrichteninstanz ausgewählt werden. „Erstmeldung“ und „Eskalation“ werden getrennt aktiviert. Die Auswahl zeigt ausschließlich Instanzen des Moduls **MessageCenter** (Modul-ID `{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}`).
+Für jede Regel kann eine Nachrichteninstanz ausgewählt werden. „Erstmeldung“ und „Eskalation“ werden getrennt aktiviert. Die Auswahl zeigt ausschließlich Instanzen des Moduls **MessageCenter** (Modul-ID `{B0F1D21A-9C77-4C3E-9A2D-5A5B2C4D6E11}`).
 
-Die Alarmmeldung wird als mehrzeiliger Text gespeichert und enthält Meldung, überwachte Variable, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert. Bei Eskalationen wird – wie bei den anderen Alarmkanälen – der Eskalationspräfix ergänzt. Die Nachrichteninstanz verwaltet anschließend Quittierung und Aufbewahrung.
+Die Alarmmeldung wird als mehrzeiliger Text gespeichert und enthält Meldung, überwachte Variable, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert. Bei Eskalationen wird – wie bei den anderen Alarmkanälen – der Eskalationspräfix ergänzt. Bei Ende eines aktiven Alarms wird automatisch eine weitere Nachricht an dieselbe Instanz gesendet. Ihr Titel beginnt mit „Behoben:“ statt „Meldung:“. Das gilt für jede konfigurierte Nachrichteninstanz unabhängig davon, ob Erstmeldung oder Eskalation aktiviert sind. Die Nachrichteninstanz verwaltet anschließend Quittierung und Aufbewahrung.
 
 Voraussetzung ist eine installierte und aktive Instanz des eigenständigen [Nachrichten-Moduls](https://github.com/gogo2001-2002/Nachrichten).

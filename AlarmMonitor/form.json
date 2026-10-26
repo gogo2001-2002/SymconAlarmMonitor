@@ -834,7 +834,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.55"
+      "caption": "AlarmMonitor – Modulversion 1.56"
     },
     {
       "type": "Label",
@@ -862,7 +862,7 @@
     },
     {
       "type": "Label",
-      "caption": "Nachrichten: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Eine Instanz des Moduls „Nachrichten“ auswählen. Die Alarmmeldung wird mehrzeilig mit überwachten Variablen, Bedingung, Verzögerung, Zeitpunkt und aktuellem Wert an das Nachrichtenmodul übergeben."
+      "caption": "Nachrichten: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Eine Nachrichteninstanz auswählen. Bei Ende eines aktiven Alarms wird automatisch eine weitere Nachricht mit „Behoben:“ im Titel an diese Instanz gesendet. Die Alarmmeldung enthält überwachte Variablen, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert."
     }
   ],
   "actions": []
