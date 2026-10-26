@@ -5,7 +5,7 @@ declare(strict_types=1);
 class AlarmMonitor extends IPSModule
 {
     private const TIMER_INTERVAL_MS = 1000;
-    private const MESSAGE_CENTER_MODULE_ID = '{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}';
+    private const MESSAGE_CENTER_MODULE_ID = '{B0F1D21A-9C77-4C3E-9A2D-5A5B2C4D6E11}';
 
     /**
      * Baut die Echo-Auswahllisten dynamisch aus vorhandenen EchoRemote-Instanzen auf.
@@ -63,7 +63,7 @@ class AlarmMonitor extends IPSModule
         return json_encode($form, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: $formJson;
     }
 
-    /** Befüllt dynamische Echo- und Visualisierungsauswahlen rekursiv, auch in RowLayout-Elementen. */
+    /** Befüllt dynamische Echo-, Visualisierungs- und Nachrichten-Auswahlen rekursiv. */
     private function ApplyDynamicOptionsToFormElements(array &$elements, array $echoOptions, array $visualizationOptions, array $messageCenterOptions): void
     {
         foreach ($elements as &$element) {
@@ -614,7 +614,7 @@ class AlarmMonitor extends IPSModule
     }
 
     /**
-     * Ändert den Alarmzustand und sendet optional genau beim Übergang FALSE -> TRUE eine Push-Nachricht.
+     * Ändert den Alarmzustand und sendet Erstmeldungen beim Auslösen sowie eine Behebungsmeldung beim Ende des Alarms.
      */
     private function SetAlarmState(int $alarmID, bool $shouldAlarm, array $rule): void
     {
@@ -630,6 +630,8 @@ class AlarmMonitor extends IPSModule
             $this->StartCallsForRule($rule, false);
             $this->SendEchoAnnouncementForRule($rule, false);
             $this->SendMessageCenterForRule($rule, false, time());
+        } elseif ($wasAlarm && !$shouldAlarm) {
+            $this->SendMessageCenterForRule($rule, false, time(), true);
         }
     }
 
@@ -830,10 +832,10 @@ class AlarmMonitor extends IPSModule
     /**
      * Sendet eine mehrzeilige Alarmmeldung an die pro Regel ausgewählte MessageCenter-Instanz.
      */
-    private function SendMessageCenterForRule(array $rule, bool $escalation = false, int $alarmSince = 0): void
+    private function SendMessageCenterForRule(array $rule, bool $escalation = false, int $alarmSince = 0, bool $resolved = false): void
     {
         $phaseFlag = $escalation ? 'MessageOnEscalation' : 'MessageOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
+        if (!$resolved && !($rule[$phaseFlag] ?? false)) {
             $this->SendDebug('MessageCenter', 'Versand übersprungen: ' . ($escalation ? 'Eskalation' : 'Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
             return;
         }
@@ -869,7 +871,7 @@ class AlarmMonitor extends IPSModule
                 $compareVariableID
             );
             $message = implode("\n", [
-                'Meldung: ' . $alarmText,
+                ($resolved ? 'Behoben: ' : 'Meldung: ') . $alarmText,
                 'Variable: ' . IPS_GetName($variableID) . ' (ID ' . $variableID . ')',
                 'Bedingung: ' . $condition,
                 'Verzögerung: ' . max(0, (int)($rule['Delay'] ?? 0)) . ' s',
