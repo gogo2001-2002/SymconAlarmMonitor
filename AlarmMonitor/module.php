@@ -5,7 +5,7 @@ declare(strict_types=1);
 class AlarmMonitor extends IPSModule
 {
     private const TIMER_INTERVAL_MS = 1000;
-    private const MESSAGE_CENTER_MODULE_ID = '{B0F1D21A-9C77-4C3E-9A2D-5A5B2C4D6E11}';
+    private const MESSAGE_CENTER_MODULE_ID = '{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}';
 
     /**
      * Baut die Echo-Auswahllisten dynamisch aus vorhandenen EchoRemote-Instanzen auf.
