@@ -5,6 +5,7 @@ declare(strict_types=1);
 class AlarmMonitor extends IPSModule
 {
     private const TIMER_INTERVAL_MS = 1000;
+    private const MESSAGE_CENTER_MODULE_ID = '{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}';
 
     /**
      * Baut die Echo-Auswahllisten dynamisch aus vorhandenen EchoRemote-Instanzen auf.
@@ -24,6 +25,7 @@ class AlarmMonitor extends IPSModule
 
         $options = $this->GetEchoRemoteOptions();
         $visualizationOptions = $this->GetVisualizationOptions();
+        $messageCenterOptions = $this->GetMessageCenterOptions();
         foreach ($form['elements'] as &$element) {
             if (!is_array($element) || ($element['type'] ?? '') !== 'List' || ($element['name'] ?? '') !== 'Rules') {
                 continue;
@@ -31,7 +33,7 @@ class AlarmMonitor extends IPSModule
 
             // Detaildialog: Select-Felder dynamisch befüllen, auch wenn sie in RowLayout-Elementen liegen.
             if (isset($element['form']) && is_array($element['form'])) {
-                $this->ApplyDynamicOptionsToFormElements($element['form'], $options, $visualizationOptions);
+                $this->ApplyDynamicOptionsToFormElements($element['form'], $options, $visualizationOptions, $messageCenterOptions);
             }
 
             // Falls ein Echo-Feld später auch als Tabellenspalte definiert wird,
@@ -49,6 +51,8 @@ class AlarmMonitor extends IPSModule
                         $column['edit']['options'] = $options;
                     } elseif (preg_match('/^PushVisualizationID[1-4]$/', $columnName)) {
                         $column['edit']['options'] = $visualizationOptions;
+                    } elseif ($columnName === 'MessageCenterInstanceID') {
+                        $column['edit']['options'] = $messageCenterOptions;
                     }
                 }
                 unset($column);
@@ -60,7 +64,7 @@ class AlarmMonitor extends IPSModule
     }
 
     /** Befüllt dynamische Echo- und Visualisierungsauswahlen rekursiv, auch in RowLayout-Elementen. */
-    private function ApplyDynamicOptionsToFormElements(array &$elements, array $echoOptions, array $visualizationOptions): void
+    private function ApplyDynamicOptionsToFormElements(array &$elements, array $echoOptions, array $visualizationOptions, array $messageCenterOptions): void
     {
         foreach ($elements as &$element) {
             if (!is_array($element)) {
@@ -71,9 +75,11 @@ class AlarmMonitor extends IPSModule
                 $element['options'] = array_values($echoOptions);
             } elseif (preg_match('/^PushVisualizationID[1-4]$/', $fieldName)) {
                 $element['options'] = array_values($visualizationOptions);
+            } elseif ($fieldName === 'MessageCenterInstanceID') {
+                $element['options'] = array_values($messageCenterOptions);
             }
             if (isset($element['items']) && is_array($element['items'])) {
-                $this->ApplyDynamicOptionsToFormElements($element['items'], $echoOptions, $visualizationOptions);
+                $this->ApplyDynamicOptionsToFormElements($element['items'], $echoOptions, $visualizationOptions, $messageCenterOptions);
             }
         }
         unset($element);
@@ -134,6 +140,24 @@ class AlarmMonitor extends IPSModule
             }
         }
 
+        usort($instances, static fn(array $a, array $b): int => strnatcasecmp($a['caption'], $b['caption']));
+        return array_merge($options, $instances);
+    }
+
+    /** Erzeugt eine Auswahlliste ausschließlich für Instanzen des MessageCenter-Moduls. */
+    private function GetMessageCenterOptions(): array
+    {
+        $options = [['caption' => 'Keine Auswahl', 'value' => 0]];
+        $instances = [];
+        foreach (IPS_GetInstanceListByModuleID(self::MESSAGE_CENTER_MODULE_ID) as $instanceID) {
+            $id = (int)$instanceID;
+            try {
+                $name = trim((string)IPS_GetName($id));
+                $instances[] = ['caption' => ($name !== '' ? $name : 'Nachrichten') . ' (ID ' . $id . ')', 'value' => $id];
+            } catch (Throwable $e) {
+                // Instanz kann während des Aufbaus der Konfiguration gelöscht werden.
+            }
+        }
         usort($instances, static fn(array $a, array $b): int => strnatcasecmp($a['caption'], $b['caption']));
         return array_merge($options, $instances);
     }
@@ -395,6 +419,9 @@ class AlarmMonitor extends IPSModule
                 'EchoOnFirst' => filter_var($rule['EchoOnFirst'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'EchoOnEscalation' => filter_var($rule['EchoOnEscalation'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'EchoInstanceIDs' => $this->GetRuleEchoInstanceIDs($rule),
+                'MessageOnFirst' => filter_var($rule['MessageOnFirst'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'MessageOnEscalation' => filter_var($rule['MessageOnEscalation'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'MessageCenterInstanceID' => max(0, (int)($rule['MessageCenterInstanceID'] ?? 0)),
                 'PushSound' => $this->NormalizePushSound((string)($rule['PushSound'] ?? 'alarm')),
                 'StateKey' => $stateKey,
                 'AlarmIdent' => $ident,
@@ -602,6 +629,7 @@ class AlarmMonitor extends IPSModule
             $this->SendEmailForRule($rule, time(), false);
             $this->StartCallsForRule($rule, false);
             $this->SendEchoAnnouncementForRule($rule, false);
+            $this->SendMessageCenterForRule($rule, false, time());
         }
     }
 
@@ -646,6 +674,7 @@ class AlarmMonitor extends IPSModule
             $this->SendEmailForRule($rule, $alarmSince, true);
             $this->StartCallsForRule($rule, true);
             $this->SendEchoAnnouncementForRule($rule, true);
+            $this->SendMessageCenterForRule($rule, true, $alarmSince);
             // Kein Nachholen mehrerer verpasster Intervalle auf einmal; der nächste Versand erfolgt in X Minuten.
             $state['nextEscalationAt'] = $now + $intervalSeconds;
         }
@@ -795,6 +824,63 @@ class AlarmMonitor extends IPSModule
             } catch (Throwable $e) {
                 $this->SendDebug('EchoAnnouncement', 'Fehler bei Echo-Instanz ' . $instanceID . ': ' . $e->getMessage(), 0);
             }
+        }
+    }
+
+    /**
+     * Sendet eine mehrzeilige Alarmmeldung an die pro Regel ausgewählte MessageCenter-Instanz.
+     */
+    private function SendMessageCenterForRule(array $rule, bool $escalation = false, int $alarmSince = 0): void
+    {
+        $phaseFlag = $escalation ? 'MessageOnEscalation' : 'MessageOnFirst';
+        if (!($rule[$phaseFlag] ?? false)) {
+            $this->SendDebug('MessageCenter', 'Versand übersprungen: ' . ($escalation ? 'Eskalation' : 'Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
+            return;
+        }
+
+        $instanceID = (int)($rule['MessageCenterInstanceID'] ?? 0);
+        if ($instanceID <= 0 || !IPS_InstanceExists($instanceID)) {
+            $this->SendDebug('MessageCenter', 'Versand übersprungen: Es ist keine gültige Nachrichteninstanz ausgewählt.', 0);
+            return;
+        }
+
+        try {
+            $instance = IPS_GetInstance($instanceID);
+            $moduleID = strtoupper((string)($instance['ModuleInfo']['ModuleID'] ?? ''));
+            if ($moduleID !== strtoupper(self::MESSAGE_CENTER_MODULE_ID)) {
+                $this->SendDebug('MessageCenter', 'Versand übersprungen: Instanz ' . $instanceID . ' ist keine Nachrichteninstanz.', 0);
+                return;
+            }
+
+            $variableID = (int)($rule['VariableID'] ?? 0);
+            if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
+                $this->SendDebug('MessageCenter', 'Versand übersprungen: Die überwachte Variable existiert nicht mehr.', 0);
+                return;
+            }
+
+            $alarmText = trim((string)($rule['PushText'] ?? ''));
+            if ($alarmText === '') $alarmText = 'Alarm';
+            $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
+            $compareVariableID = (int)($rule['CompareVariableID'] ?? 0);
+            $condition = $this->ConditionName(
+                (string)($rule['Operator'] ?? '=='),
+                (string)($rule['CompareValue'] ?? ''),
+                $compareVariableID > 0,
+                $compareVariableID
+            );
+            $message = implode("\n", [
+                'Meldung: ' . $alarmText,
+                'Variable: ' . IPS_GetName($variableID) . ' (ID ' . $variableID . ')',
+                'Bedingung: ' . $condition,
+                'Verzögerung: ' . max(0, (int)($rule['Delay'] ?? 0)) . ' s',
+                'Zeitpunkt: ' . date('d.m.Y H:i:s', $alarmSince > 0 ? $alarmSince : time()),
+                'Aktueller Wert: ' . $this->FormatVariableValue($variableID)
+            ]);
+
+            IPS_RequestAction($instanceID, 'AddMessage', $message);
+            $this->SendDebug('MessageCenter', 'Mehrzeilige Alarmmeldung wurde an Nachrichteninstanz ' . $instanceID . ' übergeben.', 0);
+        } catch (Throwable $e) {
+            $this->SendDebug('MessageCenter', 'Fehler beim Übergeben der Alarmmeldung an Instanz ' . $instanceID . ': ' . $e->getMessage(), 0);
         }
     }
 
