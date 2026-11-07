@@ -5,7 +5,6 @@ declare(strict_types=1);
 class AlarmMonitor extends IPSModule
 {
     private const TIMER_INTERVAL_MS = 1000;
-    private const MESSAGE_CENTER_MODULE_ID = '{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}';
 
     /**
      * Baut die Echo-Auswahllisten dynamisch aus vorhandenen EchoRemote-Instanzen auf.
@@ -25,15 +24,21 @@ class AlarmMonitor extends IPSModule
 
         $options = $this->GetEchoRemoteOptions();
         $visualizationOptions = $this->GetVisualizationOptions();
-        $messageCenterOptions = $this->GetMessageCenterOptions();
+        $webPushOptions = $this->GetWebPushOptions();
         foreach ($form['elements'] as &$element) {
-            if (!is_array($element) || ($element['type'] ?? '') !== 'List' || ($element['name'] ?? '') !== 'Rules') {
+            if (!is_array($element)) {
+                continue;
+            }
+            if (($element['name'] ?? '') === 'WebPushTargetID') {
+                $element['options'] = array_values($webPushOptions);
+            }
+            if (($element['type'] ?? '') !== 'List' || ($element['name'] ?? '') !== 'Rules') {
                 continue;
             }
 
             // Detaildialog: Select-Felder dynamisch befüllen, auch wenn sie in RowLayout-Elementen liegen.
             if (isset($element['form']) && is_array($element['form'])) {
-                $this->ApplyDynamicOptionsToFormElements($element['form'], $options, $visualizationOptions, $messageCenterOptions);
+                $this->ApplyDynamicOptionsToFormElements($element['form'], $options, $visualizationOptions, $webPushOptions);
             }
 
             // Falls ein Echo-Feld später auch als Tabellenspalte definiert wird,
@@ -51,8 +56,6 @@ class AlarmMonitor extends IPSModule
                         $column['edit']['options'] = $options;
                     } elseif (preg_match('/^PushVisualizationID[1-4]$/', $columnName)) {
                         $column['edit']['options'] = $visualizationOptions;
-                    } elseif ($columnName === 'MessageCenterInstanceID') {
-                        $column['edit']['options'] = $messageCenterOptions;
                     }
                 }
                 unset($column);
@@ -63,8 +66,8 @@ class AlarmMonitor extends IPSModule
         return json_encode($form, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: $formJson;
     }
 
-    /** Befüllt dynamische Echo-, Visualisierungs- und Nachrichten-Auswahlen rekursiv. */
-    private function ApplyDynamicOptionsToFormElements(array &$elements, array $echoOptions, array $visualizationOptions, array $messageCenterOptions): void
+    /** Befüllt dynamische Echo- und Visualisierungs-Auswahlen rekursiv. */
+    private function ApplyDynamicOptionsToFormElements(array &$elements, array $echoOptions, array $visualizationOptions, array $webPushOptions = []): void
     {
         foreach ($elements as &$element) {
             if (!is_array($element)) {
@@ -75,11 +78,11 @@ class AlarmMonitor extends IPSModule
                 $element['options'] = array_values($echoOptions);
             } elseif (preg_match('/^PushVisualizationID[1-4]$/', $fieldName)) {
                 $element['options'] = array_values($visualizationOptions);
-            } elseif ($fieldName === 'MessageCenterInstanceID') {
-                $element['options'] = array_values($messageCenterOptions);
+            } elseif ($fieldName === 'WebPushTargetID') {
+                $element['options'] = array_values($webPushOptions);
             }
             if (isset($element['items']) && is_array($element['items'])) {
-                $this->ApplyDynamicOptionsToFormElements($element['items'], $echoOptions, $visualizationOptions, $messageCenterOptions);
+                $this->ApplyDynamicOptionsToFormElements($element['items'], $echoOptions, $visualizationOptions, $webPushOptions);
             }
         }
         unset($element);
@@ -140,24 +143,6 @@ class AlarmMonitor extends IPSModule
             }
         }
 
-        usort($instances, static fn(array $a, array $b): int => strnatcasecmp($a['caption'], $b['caption']));
-        return array_merge($options, $instances);
-    }
-
-    /** Erzeugt eine Auswahlliste ausschließlich für Instanzen des MessageCenter-Moduls. */
-    private function GetMessageCenterOptions(): array
-    {
-        $options = [['caption' => 'Keine Auswahl', 'value' => 0]];
-        $instances = [];
-        foreach (IPS_GetInstanceListByModuleID(self::MESSAGE_CENTER_MODULE_ID) as $instanceID) {
-            $id = (int)$instanceID;
-            try {
-                $name = trim((string)IPS_GetName($id));
-                $instances[] = ['caption' => ($name !== '' ? $name : 'Nachrichten') . ' (ID ' . $id . ')', 'value' => $id];
-            } catch (Throwable $e) {
-                // Instanz kann während des Aufbaus der Konfiguration gelöscht werden.
-            }
-        }
         usort($instances, static fn(array $a, array $b): int => strnatcasecmp($a['caption'], $b['caption']));
         return array_merge($options, $instances);
     }
@@ -277,6 +262,7 @@ class AlarmMonitor extends IPSModule
         $this->RegisterPropertyInteger('MailInstanceID', 0);
         $this->RegisterPropertyInteger('PushVisualizationID', 0);
         $this->RegisterPropertyInteger('CallModuleInstanceID', 0);
+        $this->RegisterPropertyInteger('WebPushTargetID', 0);
         $this->RegisterTimer('EvaluateRules', 0, "ALM_EvaluateRules(\$_IPS['TARGET']);");
         $this->SetBuffer('RuleState', '{}');
         $this->SetBuffer('RegisteredVariables', '[]');
@@ -347,12 +333,19 @@ class AlarmMonitor extends IPSModule
                 $configuredRule['UseCompareVariable'] = $derivedUseCompareVariable;
                 $rulesChanged = true;
             }
+            // Entfernt die früheren Nachrichtenoptionen aus bestehenden Regelkonfigurationen.
+            foreach (['MessageOnFirst', 'MessageOnEscalation', 'MessageCenterInstanceID'] as $retiredField) {
+                if (array_key_exists($retiredField, $configuredRule)) {
+                    unset($configuredRule[$retiredField]);
+                    $rulesChanged = true;
+                }
+            }
 
             // Neue Regeln verwenden sichere Standardwerte: Erstmeldung und Eskalation
             // sind deaktiviert, bis der Anwender sie ausdrücklich einschaltet.
             // Fehlende Checkbox-Schlüssel werden als deaktiviert interpretiert, da
             // Symcon nicht ausgewählte Checkboxen aus der Regelliste auslassen kann.
-            $phaseFlags = ['PushOnFirst', 'PushOnEscalation', 'EmailOnFirst', 'EmailOnEscalation', 'CallOnFirst', 'CallOnEscalation', 'EchoOnFirst', 'EchoOnEscalation'];
+            $phaseFlags = ['PushOnFirst', 'PushOnEscalation', 'EmailOnFirst', 'EmailOnEscalation', 'CallOnFirst', 'CallOnEscalation', 'EchoOnFirst', 'EchoOnEscalation', 'WebPushOnFirst', 'WebPushOnEscalation'];
             foreach ($phaseFlags as $phaseFlag) {
                 if (!array_key_exists($phaseFlag, $configuredRule)) {
                     $configuredRule[$phaseFlag] = false;
@@ -419,9 +412,9 @@ class AlarmMonitor extends IPSModule
                 'EchoOnFirst' => filter_var($rule['EchoOnFirst'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'EchoOnEscalation' => filter_var($rule['EchoOnEscalation'] ?? false, FILTER_VALIDATE_BOOLEAN),
                 'EchoInstanceIDs' => $this->GetRuleEchoInstanceIDs($rule),
-                'MessageOnFirst' => filter_var($rule['MessageOnFirst'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                'MessageOnEscalation' => filter_var($rule['MessageOnEscalation'] ?? false, FILTER_VALIDATE_BOOLEAN),
-                'MessageCenterInstanceID' => max(0, (int)($rule['MessageCenterInstanceID'] ?? 0)),
+                'WebPushOnFirst' => filter_var($rule['WebPushOnFirst'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'WebPushOnEscalation' => filter_var($rule['WebPushOnEscalation'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                'WebPushTargetID' => max(0, (int)($rule['WebPushTargetID'] ?? 0)),
                 'PushSound' => $this->NormalizePushSound((string)($rule['PushSound'] ?? 'alarm')),
                 'StateKey' => $stateKey,
                 'AlarmIdent' => $ident,
@@ -614,7 +607,7 @@ class AlarmMonitor extends IPSModule
     }
 
     /**
-     * Ändert den Alarmzustand und sendet Erstmeldungen beim Auslösen sowie eine Behebungsmeldung beim Ende des Alarms.
+     * Ändert den Alarmzustand und stößt die konfigurierten Alarmaktionen beim Auslösen sowie beim Ende an.
      */
     private function SetAlarmState(int $alarmID, bool $shouldAlarm, array $rule): void
     {
@@ -624,14 +617,18 @@ class AlarmMonitor extends IPSModule
         }
 
         SetValueBoolean($alarmID, $shouldAlarm);
+        $now = time();
         if (!$wasAlarm && $shouldAlarm) {
-            $this->SendPushForRule($rule, time(), false);
-            $this->SendEmailForRule($rule, time(), false);
+            $this->SendPushForRule($rule, $now, false, false);
+            $this->SendEmailForRule($rule, $now, false, false);
             $this->StartCallsForRule($rule, false);
-            $this->SendEchoAnnouncementForRule($rule, false);
-            $this->SendMessageCenterForRule($rule, false, time());
+            $this->SendEchoAnnouncementForRule($rule, false, false);
+            $this->SendWebPushForRule($rule, $now, false, false);
         } elseif ($wasAlarm && !$shouldAlarm) {
-            $this->SendMessageCenterForRule($rule, false, time(), true);
+            $this->SendPushForRule($rule, $now, false, true);
+            $this->SendEmailForRule($rule, $now, false, true);
+            $this->SendEchoAnnouncementForRule($rule, false, true);
+            $this->SendWebPushForRule($rule, $now, false, true);
         }
     }
 
@@ -676,7 +673,7 @@ class AlarmMonitor extends IPSModule
             $this->SendEmailForRule($rule, $alarmSince, true);
             $this->StartCallsForRule($rule, true);
             $this->SendEchoAnnouncementForRule($rule, true);
-            $this->SendMessageCenterForRule($rule, true, $alarmSince);
+            $this->SendWebPushForRule($rule, $alarmSince, true);
             // Kein Nachholen mehrerer verpasster Intervalle auf einmal; der nächste Versand erfolgt in X Minuten.
             $state['nextEscalationAt'] = $now + $intervalSeconds;
         }
@@ -717,7 +714,7 @@ class AlarmMonitor extends IPSModule
      * Startet optional ausgehende Anrufe über die separat installierte TelefonansageDirekt-Instanz.
      * Telefonnummern werden kommasepariert angegeben; die Warteschlange verwaltet das Anrufmodul selbst.
      */
-    private function StartCallsForRule(array $rule, bool $escalation = false): void
+    private function StartCallsForRule(array $rule, bool $escalation = false, bool $resolved = false): void
     {
         $phaseFlag = $escalation ? 'CallOnEscalation' : 'CallOnFirst';
         if (!($rule[$phaseFlag] ?? false)) {
@@ -747,7 +744,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
+        $alarmText = $resolved ? ('Entwarnung: ' . $alarmText . ' ist behoben.') : $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
         foreach ($phoneNumbers as $phoneNumber) {
             try {
                 // Öffentliche API des eigenständigen TelefonansageDirekt-Moduls:
@@ -779,12 +776,18 @@ class AlarmMonitor extends IPSModule
     /**
      * Gibt den Alarmtext optional über Echo Remote 2 auf den pro Regel ausgewählten Echo-Geräten aus.
      */
-    private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false): void
+    private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false, bool $resolved = false): void
     {
-        $phaseFlag = $escalation ? 'EchoOnEscalation' : 'EchoOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
-            $this->SendDebug('EchoAnnouncement', 'Echo-Ausgabe übersprungen: Für diese Regel ist Echo für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
-            return;
+        if ($resolved) {
+            if (!($rule['EchoOnFirst'] ?? false) && !($rule['EchoOnEscalation'] ?? false)) {
+                return;
+            }
+        } else {
+            $phaseFlag = $escalation ? 'EchoOnEscalation' : 'EchoOnFirst';
+            if (!($rule[$phaseFlag] ?? false)) {
+                $this->SendDebug('EchoAnnouncement', 'Echo-Ausgabe übersprungen: Für diese Regel ist Echo für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
+                return;
+            }
         }
 
         $instanceText = trim((string)($rule['EchoInstanceIDs'] ?? ''));
@@ -802,7 +805,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
+        $alarmText = $resolved ? ('Entwarnung: ' . $alarmText . ' ist behoben.') : $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
 
         $instanceIDs = array_values(array_unique(array_filter(
             array_map(static fn(string $id): int => (int)trim($id), explode(',', $instanceText)),
@@ -830,82 +833,21 @@ class AlarmMonitor extends IPSModule
     }
 
     /**
-     * Sendet eine mehrzeilige Alarmmeldung an die pro Regel ausgewählte MessageCenter-Instanz.
-     */
-    private function SendMessageCenterForRule(array $rule, bool $escalation = false, int $alarmSince = 0, bool $resolved = false): void
-    {
-        $phaseFlag = $escalation ? 'MessageOnEscalation' : 'MessageOnFirst';
-        if (!$resolved && !($rule[$phaseFlag] ?? false)) {
-            $this->SendDebug('MessageCenter', 'Versand übersprungen: ' . ($escalation ? 'Eskalation' : 'Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
-            return;
-        }
-
-        $instanceID = (int)($rule['MessageCenterInstanceID'] ?? 0);
-        if ($instanceID <= 0 || !IPS_InstanceExists($instanceID)) {
-            $this->SendDebug('MessageCenter', 'Versand übersprungen: Es ist keine gültige Nachrichteninstanz ausgewählt.', 0);
-            return;
-        }
-
-        try {
-            $instance = IPS_GetInstance($instanceID);
-            $moduleID = strtoupper((string)($instance['ModuleInfo']['ModuleID'] ?? ''));
-            if ($moduleID !== strtoupper(self::MESSAGE_CENTER_MODULE_ID)) {
-                $this->SendDebug('MessageCenter', 'Versand übersprungen: Instanz ' . $instanceID . ' ist keine Nachrichteninstanz.', 0);
-                return;
-            }
-
-            $variableID = (int)($rule['VariableID'] ?? 0);
-            if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
-                $this->SendDebug('MessageCenter', 'Versand übersprungen: Die überwachte Variable existiert nicht mehr.', 0);
-                return;
-            }
-
-            $alarmText = trim((string)($rule['PushText'] ?? ''));
-            if ($alarmText === '') $alarmText = 'Alarm';
-            $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
-            $compareVariableID = (int)($rule['CompareVariableID'] ?? 0);
-            $condition = $this->ConditionName(
-                (string)($rule['Operator'] ?? '=='),
-                (string)($rule['CompareValue'] ?? ''),
-                $compareVariableID > 0,
-                $compareVariableID
-            );
-            $message = implode("\n", [
-                ($resolved ? 'Behoben: ' : 'Meldung: ') . $alarmText,
-                'Variable: ' . IPS_GetName($variableID) . ' (ID ' . $variableID . ')',
-                'Bedingung: ' . $condition,
-                'Verzögerung: ' . max(0, (int)($rule['Delay'] ?? 0)) . ' s',
-                'Zeitpunkt: ' . date('d.m.Y H:i:s', $alarmSince > 0 ? $alarmSince : time()),
-                'Aktueller Wert: ' . $this->FormatVariableValue($variableID)
-            ]);
-
-            $alarmState = $resolved ? 'resolved' : ($escalation ? 'escalation' : 'initial');
-            $payload = json_encode([
-                'source' => 'AlarmMonitor',
-                'text' => $message,
-                'alarmState' => $alarmState
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            if (!is_string($payload)) {
-                throw new RuntimeException('Alarmnachricht konnte nicht serialisiert werden.');
-            }
-            IPS_RequestAction($instanceID, 'AddMessage', $payload);
-            $this->SendDebug('MessageCenter', 'Mehrzeilige Alarmmeldung wurde an Nachrichteninstanz ' . $instanceID . ' übergeben.', 0);
-        } catch (Throwable $e) {
-            $this->SendDebug('MessageCenter', 'Fehler beim Übergeben der Alarmmeldung an Instanz ' . $instanceID . ': ' . $e->getMessage(), 0);
-        }
-    }
-
-    /**
      * Sendet beim erstmaligen Auslösen der Bedingung optional eine E-Mail.
      * Die SMTP-Instanz ist global konfiguriert; Empfänger und Nachrichtentext sind regelbezogen.
      */
-    private function SendEmailForRule(array $rule, int $alarmSince = 0, bool $escalation = false): void
+    private function SendEmailForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
     {
-        // Die Phasenflags allein bestimmen, ob eine E-Mail bei Erstmeldung oder Eskalation gesendet wird.
-        $phaseFlag = $escalation ? 'EmailOnEscalation' : 'EmailOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
-            $this->SendDebug('EmailNotification', 'E-Mail übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
-            return;
+        if ($resolved) {
+            if (!($rule['EmailOnFirst'] ?? false) && !($rule['EmailOnEscalation'] ?? false)) {
+                return;
+            }
+        } else {
+            $phaseFlag = $escalation ? 'EmailOnEscalation' : 'EmailOnFirst';
+            if (!($rule[$phaseFlag] ?? false)) {
+                $this->SendDebug('EmailNotification', 'E-Mail übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
+                return;
+            }
         }
 
         $recipientText = trim((string)($rule['EmailRecipients'] ?? ''));
@@ -927,7 +869,7 @@ class AlarmMonitor extends IPSModule
         }
 
         $pushText = trim((string)($rule['PushText'] ?? ''));
-        $notificationText = $this->FormatNotificationAlarmText($pushText, $escalation, $rule);
+        $notificationText = $resolved ? ('Behoben: ' . $pushText) : $this->FormatNotificationAlarmText($pushText, $escalation, $rule);
 
         $variableID = (int)($rule['VariableID'] ?? 0);
         if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
@@ -946,7 +888,7 @@ class AlarmMonitor extends IPSModule
         $subjectText = preg_replace('/[\r\n]+/', ' ', $notificationText) ?? $notificationText;
         $subject = 'Alarmmanager : ' . trim($subjectText);
         $bodyLines = [
-            'ALARM AUSGELÖST',
+            ($resolved ? 'ALARM BEHOBEN / ENTWARNUNG' : 'ALARM AUSGELÖST'),
             '================',
             '',
             'Meldung:',
@@ -958,7 +900,7 @@ class AlarmMonitor extends IPSModule
             'Bedingung: ' . $condition,
             'Verzögerung: ' . $delay . ' Sekunden',
             '',
-            'Zeitpunkt des Alarms: ' . $triggerTime,
+            ($resolved ? 'Zeitpunkt der Behebung: ' : 'Zeitpunkt des Alarms: ') . $triggerTime,
             'Aktueller Variablenwert: ' . $actualValue
         ];
         $body = implode("\r\n", $bodyLines);
@@ -1003,12 +945,18 @@ class AlarmMonitor extends IPSModule
         }
     }
 
-    private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false): void
+    private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
     {
-        $phaseFlag = $escalation ? 'PushOnEscalation' : 'PushOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
-            $this->SendDebug('PushNotification', 'Push übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
-            return;
+        if ($resolved) {
+            if (!($rule['PushOnFirst'] ?? false) && !($rule['PushOnEscalation'] ?? false)) {
+                return;
+            }
+        } else {
+            $phaseFlag = $escalation ? 'PushOnEscalation' : 'PushOnFirst';
+            if (!($rule[$phaseFlag] ?? false)) {
+                $this->SendDebug('PushNotification', 'Push übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
+                return;
+            }
         }
 
         $visualizationIDs = is_array($rule['PushVisualizationIDs'] ?? null)
@@ -1027,15 +975,15 @@ class AlarmMonitor extends IPSModule
         // IP-Symcon begrenzt den Titel auf 32 und den Nachrichtentext auf 256 Zeichen.
         // Deshalb werden alle Alarmdetails kompakt zusammengestellt und lange Werte gekürzt,
         // damit auch Zeitstempel und aktueller Variablenwert in der Pushnachricht vorkommen.
-        $title = 'Alarmmonitor';
-        $sound = $this->NormalizePushSound((string)($rule['PushSound'] ?? 'alarm'));
+        $title = $resolved ? 'Alarmmonitor (Behoben)' : 'Alarmmonitor';
+        $sound = $resolved ? '' : $this->NormalizePushSound((string)($rule['PushSound'] ?? 'alarm'));
         $variableID = (int)($rule['VariableID'] ?? 0);
         if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
             $this->SendDebug('PushNotification', 'Push übersprungen: Die überwachte Variable existiert nicht mehr.', 0);
             return;
         }
 
-        $pushText = $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation, $rule);
+        $pushText = $resolved ? ('Behoben: ' . trim((string)($rule['PushText'] ?? ''))) : $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation, $rule);
         $variableName = $this->TruncateText(IPS_GetName($variableID), 25);
         $condition = $this->ConditionName((string)($rule['Operator'] ?? '=='), (string)($rule['CompareValue'] ?? ''), ((int)($rule['CompareVariableID'] ?? 0) > 0), (int)($rule['CompareVariableID'] ?? 0));
         $condition = $this->TruncateText($condition, 24);
@@ -1048,7 +996,7 @@ class AlarmMonitor extends IPSModule
             'Variable: ' . $variableName . ' (ID ' . $variableID . ')',
             'Bedingung: ' . $condition,
             'Verzögerung: ' . $delay . ' s',
-            'Zeitpunkt: ' . $triggerTime,
+            ($resolved ? 'Beendet um: ' : 'Zeitpunkt: ') . $triggerTime,
             'Aktueller Wert: ' . $actualValue
         ]);
         $text = $this->TruncateText($text, 256);
@@ -1085,6 +1033,167 @@ class AlarmMonitor extends IPSModule
             } catch (Throwable $e) {
                 $this->SendDebug('PushNotification', 'Fehler beim Push-Versand an Visualisierung ' . $visualizationID . ': ' . $e->getMessage(), 0);
             }
+        }
+    }
+
+
+    private function GetWebPushOptions(): array
+    {
+        $options = [
+            ['caption' => 'Automatisch ermitteln (WebPushHelper)', 'value' => 0]
+        ];
+
+        // Skripte mit Ident WebPushHelper oder Funktion WebPush_SendNotification
+        foreach (IPS_GetScriptList() as $scriptID) {
+            $id = (int)$scriptID;
+            try {
+                $obj = IPS_GetObject($id);
+                $name = trim((string)($obj['ObjectName'] ?? ''));
+                $ident = (string)($obj['ObjectIdent'] ?? '');
+                if ($ident === 'WebPushHelper') {
+                    $options[] = [
+                        'caption' => ($name !== '' ? $name : 'WebPush Skript') . ' (ID ' . $id . ')',
+                        'value'   => $id
+                    ];
+                } elseif (stripos($name, 'backup') === false && stripos($name, 'webpush') !== false) {
+                    $file = IPS_GetScriptFile($id);
+                    if (file_exists($file) && str_contains((string)file_get_contents($file), 'WebPush_SendNotification')) {
+                        $options[] = [
+                            'caption' => ($name !== '' ? $name : 'WebPush Skript') . ' (ID ' . $id . ')',
+                            'value'   => $id
+                        ];
+                    }
+                }
+            } catch (Throwable $e) {
+            }
+        }
+
+        // Instanzen, die WebPush im Namen oder Modulnamen führen
+        foreach (IPS_GetInstanceList() as $instanceID) {
+            $id = (int)$instanceID;
+            try {
+                $obj = IPS_GetObject($id);
+                $name = trim((string)($obj['ObjectName'] ?? ''));
+                $instance = IPS_GetInstance($id);
+                $moduleName = (string)($instance['ModuleInfo']['ModuleName'] ?? '');
+                if (stripos($name, 'webpush') !== false || stripos($moduleName, 'webpush') !== false) {
+                    $options[] = [
+                        'caption' => ($name !== '' ? $name : 'WebPush Instanz') . ' (ID ' . $id . ')',
+                        'value'   => $id
+                    ];
+                }
+            } catch (Throwable $e) {
+            }
+        }
+
+        return $options;
+    }
+
+    private function ResolveWebPushTargetID(array $rule): int
+    {
+        // 1. Spezifisches Ziel in der Regel
+        $ruleTarget = (int)($rule['WebPushTargetID'] ?? 0);
+        if ($ruleTarget > 0 && (IPS_ScriptExists($ruleTarget) || IPS_InstanceExists($ruleTarget))) {
+            return $ruleTarget;
+        }
+
+        // 2. Globales Standardziel der Modulinstanz
+        $globalTarget = (int)$this->ReadPropertyInteger('WebPushTargetID');
+        if ($globalTarget > 0 && (IPS_ScriptExists($globalTarget) || IPS_InstanceExists($globalTarget))) {
+            return $globalTarget;
+        }
+
+        // 3. Suche nach Skript mit Ident 'WebPushHelper'
+        foreach (IPS_GetScriptList() as $sid) {
+            try {
+                $obj = IPS_GetObject((int)$sid);
+                if (($obj['ObjectIdent'] ?? '') === 'WebPushHelper') {
+                    return (int)$sid;
+                }
+            } catch (Throwable $e) {
+            }
+        }
+
+        // 4. Suche nach Skript 'WebPush Senden' / 'WebPushHelper'
+        foreach (IPS_GetScriptList() as $sid) {
+            try {
+                $obj = IPS_GetObject((int)$sid);
+                $name = (string)($obj['ObjectName'] ?? '');
+                if (stripos($name, 'backup') === false && (stripos($name, 'webpush senden') !== false || stripos($name, 'webpushhelper') !== false)) {
+                    return (int)$sid;
+                }
+            } catch (Throwable $e) {
+            }
+        }
+
+        return 0;
+    }
+
+    private function SendWebPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
+    {
+        if ($resolved) {
+            if (!($rule['WebPushOnFirst'] ?? false) && !($rule['WebPushOnEscalation'] ?? false)) {
+                return;
+            }
+        } else {
+            $phaseFlag = $escalation ? 'WebPushOnEscalation' : 'WebPushOnFirst';
+            if (!($rule[$phaseFlag] ?? false)) {
+                $this->SendDebug('WebPushNotification', 'WebPush übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
+                return;
+            }
+        }
+
+        $text = trim((string)($rule['PushText'] ?? ''));
+        if ($text === '') {
+            $this->SendDebug('WebPushNotification', 'WebPush abgebrochen: Der Alarmtext dieser Bedingung ist leer.', 0);
+            return;
+        }
+
+        $targetID = $this->ResolveWebPushTargetID($rule);
+        if ($targetID <= 0) {
+            $this->SendDebug('WebPushNotification', 'WebPush abgebrochen: Kein WebPush-Hilfsskript oder WebPush-Instanz gefunden.', 0);
+            return;
+        }
+
+        $title = $resolved ? 'Alarm behoben' : ($escalation ? 'Alarmmonitor (Eskalation)' : 'Alarmmonitor');
+        $pushText = $resolved ? ('Behoben: ' . $text) : $this->FormatNotificationAlarmText($text, $escalation, $rule);
+        $variableID = (int)($rule['VariableID'] ?? 0);
+        $variableName = ($variableID > 0 && IPS_VariableExists($variableID)) ? $this->TruncateText(IPS_GetName($variableID), 30) : '';
+        $condition = $this->ConditionName((string)($rule['Operator'] ?? '=='), (string)($rule['CompareValue'] ?? ''), ((int)($rule['CompareVariableID'] ?? 0) > 0), (int)($rule['CompareVariableID'] ?? 0));
+        $triggerTime = date('d.m.Y H:i:s', $alarmSince > 0 ? $alarmSince : time());
+        $actualValue = ($variableID > 0 && IPS_VariableExists($variableID)) ? $this->TruncateText($this->FormatVariableValue($variableID), 25) : '';
+
+        $lines = [];
+        $lines[] = $pushText;
+        if ($variableName !== '') {
+            $lines[] = 'Variable: ' . $variableName . ' (' . $actualValue . ')';
+            $lines[] = 'Bedingung: ' . $condition;
+        }
+        $lines[] = ($resolved ? 'Beendet um: ' : 'Zeitpunkt: ') . $triggerTime;
+        $body = implode("\n", $lines);
+        $targetUrl = '/hook/home#system-messages';
+
+        try {
+            if (IPS_ScriptExists($targetID)) {
+                $res = IPS_RunScriptWaitEx($targetID, [
+                    'title' => $title,
+                    'body'  => $body,
+                    'url'   => $targetUrl
+                ]);
+                $this->SendDebug('WebPushNotification', 'WebPush an alle registrierten Geräte gesendet via Skript ' . $targetID . ': ' . trim((string)$res), 0);
+            } elseif (IPS_InstanceExists($targetID)) {
+                $payload = json_encode([
+                    'title' => $title,
+                    'body'  => $body,
+                    'url'   => $targetUrl
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                IPS_RequestAction($targetID, 'SendNotification', $payload);
+                $this->SendDebug('WebPushNotification', 'WebPush an Instanz ' . $targetID . ' übergeben.', 0);
+            } else {
+                $this->SendDebug('WebPushNotification', 'WebPush-Ziel ' . $targetID . ' existiert weder als Skript noch als Instanz.', 0);
+            }
+        } catch (Throwable $e) {
+            $this->SendDebug('WebPushNotification', 'Fehler beim WebPush-Versand an Ziel ' . $targetID . ': ' . $e->getMessage(), 0);
         }
     }
 

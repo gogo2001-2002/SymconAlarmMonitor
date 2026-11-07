@@ -13,6 +13,17 @@
       "default": 0
     },
     {
+      "type": "Select",
+      "name": "WebPushTargetID",
+      "caption": "WebPush-Instanz / Skript (Standard)",
+      "options": [
+        {
+          "caption": "Automatisch (WebPushHelper)",
+          "value": 0
+        }
+      ]
+    },
+    {
       "type": "List",
       "name": "Rules",
       "caption": "Überwachungsregeln",
@@ -358,24 +369,24 @@
           "save": true
         },
         {
-          "name": "MessageCenterInstanceID",
+          "name": "WebPushOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "WebPushOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "WebPushTargetID",
           "default": 0,
           "visible": false,
           "add": 0,
-          "save": true
-        },
-        {
-          "name": "MessageOnFirst",
-          "default": false,
-          "visible": false,
-          "add": false,
-          "save": true
-        },
-        {
-          "name": "MessageOnEscalation",
-          "default": false,
-          "visible": false,
-          "add": false,
           "save": true
         }
       ],
@@ -795,20 +806,20 @@
         },
         {
           "type": "Label",
-          "caption": "Nachrichten"
+          "caption": "WebPush"
         },
         {
           "type": "RowLayout",
           "items": [
             {
               "type": "CheckBox",
-              "name": "MessageOnFirst",
+              "name": "WebPushOnFirst",
               "default": false,
               "caption": "Erstmeldung"
             },
             {
               "type": "CheckBox",
-              "name": "MessageOnEscalation",
+              "name": "WebPushOnEscalation",
               "default": false,
               "caption": "Eskalation"
             }
@@ -819,11 +830,11 @@
           "items": [
             {
               "type": "Select",
-              "name": "MessageCenterInstanceID",
-              "caption": "Nachrichteninstanz",
+              "name": "WebPushTargetID",
+              "caption": "WebPush-Instanz / Skript",
               "options": [
                 {
-                  "caption": "Keine Auswahl",
+                  "caption": "Automatisch (WebPushHelper)",
                   "value": 0
                 }
               ]
@@ -834,11 +845,11 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.56"
+      "caption": "AlarmMonitor – Modulversion 1.60"
     },
     {
       "type": "Label",
-      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen oder eine Nachrichteninstanz möglich. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
+      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
     },
     {
       "type": "Label",
@@ -862,7 +873,7 @@
     },
     {
       "type": "Label",
-      "caption": "Nachrichten: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Eine Nachrichteninstanz auswählen. Bei Ende eines aktiven Alarms wird automatisch eine weitere Nachricht mit „Behoben:“ im Titel an diese Instanz gesendet. Die Alarmmeldung enthält überwachte Variablen, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert."
+      "caption": "WebPush: „Erstmeldung“ und „Eskalation“ steuern den browser- und smartphoneübergreifenden Push-Versand je Phase an alle registrierten Mobilgeräte. Wird kein spezifisches Ziel ausgewählt, ermittelt das Modul automatisch das WebPush-Hilfsskript (WebPushHelper). Ein Klick auf die Benachrichtigung am Smartphone öffnet direkt die Visu-Nachrichtenseite."
     }
   ],
   "actions": []
