@@ -1,8 +1,8 @@
-AlarmMonitor – Modulversion 1.58
+AlarmMonitor – Modulversion 1.62
 
-# IP-Symcon AlarmMonitor 1.57
+# IP-Symcon AlarmMonitor 1.62
 
-Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, Mail, Anruf, Echo und Nachrichten lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel.
+Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, WebPush, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel sowie automatischer WebPush an alle registrierten Geräte.
 
 ## Vergleichswert
 Ist eine Vergleichsvariable ausgewählt, wird ausschließlich deren aktueller Wert verwendet. Andernfalls gilt der feste Vergleichswert.
@@ -15,17 +15,26 @@ Unterstützt werden Wertvergleiche sowie „Variable verändert“ und „Variab
 
 
 ## Standardwerte in neuen Regeln (Version 1.55)
-Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalation“ für Push, Mail, Anruf und Echo standardmäßig deaktiviert. Benachrichtigungen werden erst ausgeführt, wenn die jeweilige Phase ausdrücklich aktiviert wird.
+Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalation“ für alle Alarmkanäle standardmäßig deaktiviert. Benachrichtigungen werden erst ausgeführt, wenn die jeweilige Phase ausdrücklich aktiviert wird.
 
 
 ## Eskalationszähler (Version 1.55)
 Die Variable „Eskalation“ ist ein Integer-Zähler. Sie wird bei jeder ausgelösten Eskalationsbenachrichtigung um eins erhöht und beim Zurücksetzen des Alarms auf 0 gesetzt. Vorhandene boolesche Eskalationsvariablen werden automatisch durch Integer-Variablen ersetzt.
 
 
-## Nachrichtenmodul
+## WebPush (Version 1.59 / 1.60)
+Für jede Regel können WebPush-Benachrichtigungen unabhängig für „Erstmeldung“ und „Eskalation“ aktiviert werden. Die Nachrichten werden browser- und smartphoneübergreifend an alle registrierten Handys gesendet (z.B. iPhone PWA oder Android).
 
-Für jede Regel kann eine Nachrichteninstanz ausgewählt werden. „Erstmeldung“ und „Eskalation“ werden getrennt aktiviert. Die Auswahl zeigt ausschließlich Instanzen des Moduls **MessageCenter** (Modul-ID `{A1C92D44-2F7A-4BF4-B1E6-9D0F8A6C77E2}`).
+- **Ziel**: Das Modul ermittelt standardmäßig automatisch das WebPush-Hilfsskript (`WebPushHelper` / ID `34007`). Alternativ kann global oder pro Regel ein spezifisches WebPush-Skript oder eine WebPush-Instanz ausgewählt werden.
+- **Benachrichtigungsinhalt**: Enthält Alarmtext, überwachte Variable, aktuellen Messwert und Auslösezeitpunkt. Bei Eskalationen wird der Eskalationspräfix vorangestellt.
+- **Klick-Aktion**: Ein Klick oder Antippen der Push-Nachricht auf dem Mobilgerät öffnet direkt die Visu auf der Seite „Nachrichten“ (`#system-messages`).
 
-Die Alarmmeldung wird als mehrzeiliger Text gespeichert und enthält Meldung, überwachte Variable, Bedingung, Verzögerung, Zeitpunkt und aktuellen Wert. Bei Eskalationen wird – wie bei den anderen Alarmkanälen – der Eskalationspräfix ergänzt. Bei Ende eines aktiven Alarms wird automatisch eine weitere Nachricht an dieselbe Instanz gesendet. Ihr Titel beginnt mit „Behoben:“ statt „Meldung:“. Das gilt für jede konfigurierte Nachrichteninstanz unabhängig davon, ob Erstmeldung oder Eskalation aktiviert sind. Die Nachrichteninstanz verwaltet anschließend Quittierung und Aufbewahrung. Zusätzlich sendet der AlarmMonitor den Alarmzustand als strukturierte Metadaten mit: Erstmeldungen werden als `initial`, Eskalationen als `escalation` und aufgehobene Alarme als `resolved` gekennzeichnet. Die Visu markiert diese Nachrichten gelb, rot bzw. grün.
 
-Voraussetzung ist eine installierte und aktive Instanz des eigenständigen [Nachrichten-Moduls](https://github.com/gogo2001-2002/Nachrichten).
+## Alarmbehebung / Entwarnung (Version 1.60)
+Sobald ein aktiver Alarm beendet wird (Messwert wieder im Normalbereich), wird automatisch eine **Entwarnung / „Behoben“-Nachricht** über alle für die jeweilige Regel aktiven Alarmkanäle gesendet:
+- **WebPush**: Sendet eine Benachrichtigung mit „Alarm behoben: Behoben: [Text]“ an alle registrierten Handys.
+- **App-Push**: Sendet eine Push-Nachricht mit „Alarmmonitor (Behoben)“ und neutralem Benachrichtigungston an die Visu-Apps.
+- **E-Mail**: Sendet eine Entwarnungs-Mail mit dem Betreff „Alarmmanager : Behoben: [Text]“.
+- **Echo**: Gibt über die konfigurierten Echo-Lautsprecher die Ansage „Entwarnung: [Text] ist behoben.“ aus.
+
+
