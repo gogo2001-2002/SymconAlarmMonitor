@@ -1,880 +1,880 @@
 {
-    "elements": [
+  "elements": [
+    {
+      "type": "SelectInstance",
+      "name": "MailInstanceID",
+      "caption": "E-Mail-Instanz (SMTP)",
+      "default": 0
+    },
+    {
+      "type": "SelectInstance",
+      "name": "CallModuleInstanceID",
+      "caption": "TelefonansageDirekt-Instanz",
+      "default": 0
+    },
+    {
+      "type": "Select",
+      "name": "WebPushTargetID",
+      "caption": "WebPush-Instanz / Skript (Standard)",
+      "options": [
         {
-            "type": "SelectInstance",
-            "name": "MailInstanceID",
-            "caption": "E-Mail-Instanz (SMTP)",
-            "default": 0
-        },
-        {
-            "type": "SelectInstance",
-            "name": "CallModuleInstanceID",
-            "caption": "TelefonansageDirekt-Instanz",
-            "default": 0
-        },
-        {
-            "type": "Select",
-            "name": "WebPushTargetID",
-            "caption": "WebPush-Instanz / Skript (Standard)",
-            "options": [
-                {
-                    "caption": "Automatisch (WebPushHelper)",
-                    "value": 0
-                }
-            ]
-        },
-        {
-            "type": "List",
-            "name": "Rules",
-            "caption": "Überwachungsregeln",
-            "add": true,
-            "delete": true,
-            "rowCount": 12,
-            "columns": [
-                {
-                    "name": "Enabled",
-                    "caption": "Aktiv",
-                    "width": "55px",
-                    "add": true,
-                    "edit": {
-                        "type": "CheckBox"
-                    },
-                    "save": true
-                },
-                {
-                    "name": "EnabledConfigured",
-                    "visible": false,
-                    "add": true,
-                    "save": true
-                },
-                {
-                    "name": "PushText",
-                    "caption": "Alarmtext",
-                    "width": "300px",
-                    "add": "",
-                    "edit": {
-                        "type": "ValidationTextBox",
-                        "maxLength": 256
-                    }
-                },
-                {
-                    "name": "VariableID",
-                    "caption": "Zu überwachende Variable",
-                    "width": "360px",
-                    "add": 0,
-                    "edit": {
-                        "type": "SelectVariable"
-                    }
-                },
-                {
-                    "name": "Operator",
-                    "caption": "Bedingung",
-                    "width": "110px",
-                    "add": "==",
-                    "edit": {
-                        "type": "Select",
-                        "options": [
-                            {
-                                "caption": "Ist gleich",
-                                "value": "=="
-                            },
-                            {
-                                "caption": "Ist nicht gleich",
-                                "value": "!="
-                            },
-                            {
-                                "caption": "Ist größer gleich",
-                                "value": ">="
-                            },
-                            {
-                                "caption": "Ist größer",
-                                "value": ">"
-                            },
-                            {
-                                "caption": "Ist kleiner",
-                                "value": "<"
-                            },
-                            {
-                                "caption": "Ist kleiner gleich",
-                                "value": "<="
-                            },
-                            {
-                                "caption": "Variable verändert",
-                                "value": "CHANGED"
-                            },
-                            {
-                                "caption": "Variable aktualisiert",
-                                "value": "UPDATED"
-                            }
-                        ],
-                        "onChange": "ALM_RulesChanged($id, $Operator);"
-                    }
-                },
-                {
-                    "name": "CompareValue",
-                    "caption": "Vergleichswert",
-                    "width": "65px",
-                    "add": "1",
-                    "edit": {
-                        "type": "ValidationTextBox"
-                    }
-                },
-                {
-                    "name": "CompareVariableID",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "Delay",
-                    "caption": "Verzögerung (Sek.)",
-                    "width": "65px",
-                    "add": 0,
-                    "edit": {
-                        "type": "NumberSpinner",
-                        "minimum": 0,
-                        "maximum": 86400
-                    }
-                },
-                {
-                    "name": "EscalationMinutes",
-                    "caption": "Eskalation (Min.)",
-                    "width": "75px",
-                    "add": 0,
-                    "edit": {
-                        "type": "NumberSpinner",
-                        "minimum": 0,
-                        "maximum": 10080
-                    }
-                },
-                {
-                    "name": "PushSound",
-                    "caption": "Push-Ton",
-                    "width": "60px",
-                    "add": "alarm",
-                    "edit": {
-                        "type": "Select",
-                        "options": [
-                            {
-                                "caption": "Standardton",
-                                "value": ""
-                            },
-                            {
-                                "caption": "Alarm",
-                                "value": "alarm"
-                            },
-                            {
-                                "caption": "Glocke",
-                                "value": "bell"
-                            },
-                            {
-                                "caption": "Boom",
-                                "value": "boom"
-                            },
-                            {
-                                "caption": "Buzzer",
-                                "value": "buzzer"
-                            },
-                            {
-                                "caption": "Verbunden",
-                                "value": "connected"
-                            },
-                            {
-                                "caption": "Dunkel",
-                                "value": "dark"
-                            },
-                            {
-                                "caption": "Digital",
-                                "value": "digital"
-                            },
-                            {
-                                "caption": "Schlagzeug",
-                                "value": "drums"
-                            },
-                            {
-                                "caption": "Ente",
-                                "value": "duck"
-                            },
-                            {
-                                "caption": "Voll",
-                                "value": "full"
-                            },
-                            {
-                                "caption": "Fröhlich",
-                                "value": "happy"
-                            },
-                            {
-                                "caption": "Horn",
-                                "value": "horn"
-                            },
-                            {
-                                "caption": "Inception",
-                                "value": "inception"
-                            },
-                            {
-                                "caption": "Kazoo",
-                                "value": "kazoo"
-                            },
-                            {
-                                "caption": "Rolle",
-                                "value": "roll"
-                            },
-                            {
-                                "caption": "Sirene",
-                                "value": "siren"
-                            },
-                            {
-                                "caption": "Weltraum",
-                                "value": "space"
-                            },
-                            {
-                                "caption": "Tröpfeln",
-                                "value": "trickling"
-                            },
-                            {
-                                "caption": "Turn",
-                                "value": "turn"
-                            }
-                        ]
-                    },
-                    "visible": false,
-                    "save": true
-                },
-                {
-                    "name": "EmailRecipients",
-                    "caption": "E-Mail-Empfänger",
-                    "width": "130px",
-                    "add": "",
-                    "edit": {
-                        "type": "ValidationTextBox",
-                        "maxLength": 256
-                    },
-                    "visible": false,
-                    "save": true
-                },
-                {
-                    "name": "PhoneNumbers",
-                    "caption": "Telefonnummern",
-                    "width": "130px",
-                    "add": "",
-                    "edit": {
-                        "type": "ValidationTextBox",
-                        "maxLength": 256
-                    },
-                    "visible": false,
-                    "save": true
-                },
-                {
-                    "name": "PushVisualizationID1",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "PushVisualizationID2",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "PushVisualizationID3",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "PushVisualizationID4",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "EchoInstanceID1",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "EchoInstanceID2",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "EchoInstanceID3",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "EchoInstanceID4",
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                },
-                {
-                    "name": "PushOnFirst",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "PushOnEscalation",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "EmailOnFirst",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "EmailOnEscalation",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "CallOnFirst",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "CallOnEscalation",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "EchoOnFirst",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "EchoOnEscalation",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "WebPushOnFirst",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "WebPushOnEscalation",
-                    "default": false,
-                    "visible": false,
-                    "add": false,
-                    "save": true
-                },
-                {
-                    "name": "WebPushTargetID",
-                    "default": 0,
-                    "visible": false,
-                    "add": 0,
-                    "save": true
-                }
-            ],
-            "form": [
-                {
-                    "type": "CheckBox",
-                    "name": "Enabled",
-                    "caption": "Aktion aktiv"
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "PushText",
-                    "caption": "Alarmtext",
-                    "maxLength": 256
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "SelectVariable",
-                            "name": "VariableID",
-                            "caption": "Zu überwachende Variable"
-                        },
-                        {
-                            "type": "Select",
-                            "name": "Operator",
-                            "caption": "Bedingung",
-                            "options": [
-                                {
-                                    "caption": "Ist gleich",
-                                    "value": "=="
-                                },
-                                {
-                                    "caption": "Ist nicht gleich",
-                                    "value": "!="
-                                },
-                                {
-                                    "caption": "Ist größer gleich",
-                                    "value": ">="
-                                },
-                                {
-                                    "caption": "Ist größer",
-                                    "value": ">"
-                                },
-                                {
-                                    "caption": "Ist kleiner",
-                                    "value": "<"
-                                },
-                                {
-                                    "caption": "Ist kleiner gleich",
-                                    "value": "<="
-                                },
-                                {
-                                    "caption": "Variable verändert",
-                                    "value": "CHANGED"
-                                },
-                                {
-                                    "caption": "Variable aktualisiert",
-                                    "value": "UPDATED"
-                                }
-                            ],
-                            "onChange": "ALM_RulesChanged($id, $Operator);"
-                        },
-                        {
-                            "type": "ValidationTextBox",
-                            "name": "CompareValue",
-                            "caption": "Vergleichswert"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "SelectVariable",
-                            "name": "CompareVariableID",
-                            "caption": "Vergleichsvariable"
-                        }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "caption": "Ist eine Vergleichsvariable ausgewählt, wird ihr aktueller Wert verwendet. Ohne Auswahl gilt der feste Vergleichswert."
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "NumberSpinner",
-                            "name": "Delay",
-                            "caption": "Verzögerung (Sek.)",
-                            "minimum": 0,
-                            "maximum": 86400
-                        },
-                        {
-                            "type": "NumberSpinner",
-                            "name": "EscalationMinutes",
-                            "caption": "Eskalation (Min.)",
-                            "minimum": 0,
-                            "maximum": 10080
-                        }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "Label",
-                    "caption": "Push"
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "CheckBox",
-                            "name": "PushOnFirst",
-                            "default": false,
-                            "caption": "Erstmeldung"
-                        },
-                        {
-                            "type": "CheckBox",
-                            "name": "PushOnEscalation",
-                            "default": false,
-                            "caption": "Eskalation"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "PushSound",
-                            "caption": "Push-Ton",
-                            "options": [
-                                {
-                                    "caption": "Standardton",
-                                    "value": ""
-                                },
-                                {
-                                    "caption": "Alarm",
-                                    "value": "alarm"
-                                },
-                                {
-                                    "caption": "Glocke",
-                                    "value": "bell"
-                                },
-                                {
-                                    "caption": "Boom",
-                                    "value": "boom"
-                                },
-                                {
-                                    "caption": "Buzzer",
-                                    "value": "buzzer"
-                                },
-                                {
-                                    "caption": "Verbunden",
-                                    "value": "connected"
-                                },
-                                {
-                                    "caption": "Dunkel",
-                                    "value": "dark"
-                                },
-                                {
-                                    "caption": "Digital",
-                                    "value": "digital"
-                                },
-                                {
-                                    "caption": "Schlagzeug",
-                                    "value": "drums"
-                                },
-                                {
-                                    "caption": "Ente",
-                                    "value": "duck"
-                                },
-                                {
-                                    "caption": "Voll",
-                                    "value": "full"
-                                },
-                                {
-                                    "caption": "Fröhlich",
-                                    "value": "happy"
-                                },
-                                {
-                                    "caption": "Horn",
-                                    "value": "horn"
-                                },
-                                {
-                                    "caption": "Inception",
-                                    "value": "inception"
-                                },
-                                {
-                                    "caption": "Kazoo",
-                                    "value": "kazoo"
-                                },
-                                {
-                                    "caption": "Rolle",
-                                    "value": "roll"
-                                },
-                                {
-                                    "caption": "Sirene",
-                                    "value": "siren"
-                                },
-                                {
-                                    "caption": "Weltraum",
-                                    "value": "space"
-                                },
-                                {
-                                    "caption": "Tröpfeln",
-                                    "value": "trickling"
-                                },
-                                {
-                                    "caption": "Turn",
-                                    "value": "turn"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "PushVisualizationID1",
-                            "caption": "Push-Visualisierung 1",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "PushVisualizationID2",
-                            "caption": "Push-Visualisierung 2",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "PushVisualizationID3",
-                            "caption": "Push-Visualisierung 3",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "PushVisualizationID4",
-                            "caption": "Push-Visualisierung 4",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "Label",
-                    "caption": "Mail"
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "CheckBox",
-                            "name": "EmailOnFirst",
-                            "default": false,
-                            "caption": "Erstmeldung"
-                        },
-                        {
-                            "type": "CheckBox",
-                            "name": "EmailOnEscalation",
-                            "default": false,
-                            "caption": "Eskalation"
-                        }
-                    ]
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "EmailRecipients",
-                    "caption": "E-Mail-Empfänger (kommagetrennte Liste)",
-                    "maxLength": 256
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "Label",
-                    "caption": "Anruf"
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "CheckBox",
-                            "name": "CallOnFirst",
-                            "default": false,
-                            "caption": "Erstmeldung"
-                        },
-                        {
-                            "type": "CheckBox",
-                            "name": "CallOnEscalation",
-                            "default": false,
-                            "caption": "Eskalation"
-                        }
-                    ]
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "PhoneNumbers",
-                    "caption": "Telefonnummern (kommagetrennte Liste)",
-                    "maxLength": 256
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "Label",
-                    "caption": "Echo"
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "CheckBox",
-                            "name": "EchoOnFirst",
-                            "default": false,
-                            "caption": "Erstmeldung"
-                        },
-                        {
-                            "type": "CheckBox",
-                            "name": "EchoOnEscalation",
-                            "default": false,
-                            "caption": "Eskalation"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "EchoInstanceID1",
-                            "caption": "Echo-Gerät 1",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "EchoInstanceID2",
-                            "caption": "Echo-Gerät 2",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "EchoInstanceID3",
-                            "caption": "Echo-Gerät 3",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        },
-                        {
-                            "type": "Select",
-                            "name": "EchoInstanceID4",
-                            "caption": "Echo-Gerät 4",
-                            "options": [
-                                {
-                                    "caption": "Keine Auswahl",
-                                    "value": 0
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "Label",
-                    "caption": " "
-                },
-                {
-                    "type": "Label",
-                    "caption": "WebPush"
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "CheckBox",
-                            "name": "WebPushOnFirst",
-                            "default": false,
-                            "caption": "Erstmeldung"
-                        },
-                        {
-                            "type": "CheckBox",
-                            "name": "WebPushOnEscalation",
-                            "default": false,
-                            "caption": "Eskalation"
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "WebPushTargetID",
-                            "caption": "WebPush-Instanz / Skript",
-                            "options": [
-                                {
-                                    "caption": "Automatisch (WebPushHelper)",
-                                    "value": 0
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "type": "Label",
-            "caption": "AlarmMonitor – Modulversion 1.60"
-        },
-        {
-            "type": "Label",
-            "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
-        },
-        {
-            "type": "Label",
-            "caption": "Bedingungen und Zeitsteuerung: Wertvergleiche prüfen den aktuellen Wert. „Variable verändert“ überwacht ausbleibende Änderungen; „Variable aktualisiert“ berücksichtigt den Zeitstempel auch bei unverändertem Wert. „Verzögerung“ bestimmt die Mindestdauer der Bedingung. „Eskalation (Min.)“ legt den Wiederholungsabstand fest; 0 deaktiviert Wiederholungen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
-        },
-        {
-            "type": "Label",
-            "caption": "Push: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Pro Regel bis zu vier Visualisierungen auswählen und einen Push-Ton festlegen. Ohne aktive Regel, aktiviertes Phasenflag oder gültige Visualisierung wird kein Push gesendet. Die Nachricht ist auf 256 Zeichen begrenzt."
-        },
-        {
-            "type": "Label",
-            "caption": "Mail: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Empfänger kommasepariert eintragen. Ohne gültige Empfänger wird keine Mail gesendet. Betreff und Nachricht enthalten bei Eskalationen „Eskalation: “ vor dem Alarmtext."
-        },
-        {
-            "type": "Label",
-            "caption": "Anruf: „Erstmeldung“ und „Eskalation“ steuern Anrufe je Phase. Telefonnummern kommasepariert eintragen. Ohne gültige Telefonnummer wird kein Anruf gestartet. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
-        },
-        {
-            "type": "Label",
-            "caption": "Echo: „Erstmeldung“ und „Eskalation“ steuern Ansagen je Phase. Pro Regel bis zu vier EchoRemote-Instanzen auswählen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
-        },
-        {
-            "type": "Label",
-            "caption": "WebPush: „Erstmeldung“ und „Eskalation“ steuern den browser- und smartphoneübergreifenden Push-Versand je Phase an alle registrierten Mobilgeräte. Wird kein spezifisches Ziel ausgewählt, ermittelt das Modul automatisch das WebPush-Hilfsskript (WebPushHelper). Ein Klick auf die Benachrichtigung am Smartphone öffnet direkt die Visu-Nachrichtenseite."
+          "caption": "Automatisch (WebPushHelper)",
+          "value": 0
         }
-    ],
-    "actions": []
+      ]
+    },
+    {
+      "type": "List",
+      "name": "Rules",
+      "caption": "Überwachungsregeln",
+      "add": true,
+      "delete": true,
+      "rowCount": 12,
+      "columns": [
+        {
+          "name": "Enabled",
+          "caption": "Aktiv",
+          "width": "55px",
+          "add": true,
+          "edit": {
+            "type": "CheckBox"
+          },
+          "save": true
+        },
+        {
+          "name": "EnabledConfigured",
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
+          "name": "PushText",
+          "caption": "Alarmtext",
+          "width": "300px",
+          "add": "",
+          "edit": {
+            "type": "ValidationTextBox",
+            "maxLength": 256
+          }
+        },
+        {
+          "name": "VariableID",
+          "caption": "Zu überwachende Variable",
+          "width": "360px",
+          "add": 0,
+          "edit": {
+            "type": "SelectVariable"
+          }
+        },
+        {
+          "name": "Operator",
+          "caption": "Bedingung",
+          "width": "110px",
+          "add": "==",
+          "edit": {
+            "type": "Select",
+            "options": [
+              {
+                "caption": "Ist gleich",
+                "value": "=="
+              },
+              {
+                "caption": "Ist nicht gleich",
+                "value": "!="
+              },
+              {
+                "caption": "Ist größer gleich",
+                "value": ">="
+              },
+              {
+                "caption": "Ist größer",
+                "value": ">"
+              },
+              {
+                "caption": "Ist kleiner",
+                "value": "<"
+              },
+              {
+                "caption": "Ist kleiner gleich",
+                "value": "<="
+              },
+              {
+                "caption": "Variable verändert",
+                "value": "CHANGED"
+              },
+              {
+                "caption": "Variable aktualisiert",
+                "value": "UPDATED"
+              }
+            ],
+            "onChange": "ALM_RulesChanged($id, $Operator);"
+          }
+        },
+        {
+          "name": "CompareValue",
+          "caption": "Vergleichswert",
+          "width": "65px",
+          "add": "1",
+          "edit": {
+            "type": "ValidationTextBox"
+          }
+        },
+        {
+          "name": "CompareVariableID",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "Delay",
+          "caption": "Verzögerung (Sek.)",
+          "width": "65px",
+          "add": 0,
+          "edit": {
+            "type": "NumberSpinner",
+            "minimum": 0,
+            "maximum": 86400
+          }
+        },
+        {
+          "name": "EscalationMinutes",
+          "caption": "Eskalation (Min.)",
+          "width": "75px",
+          "add": 0,
+          "edit": {
+            "type": "NumberSpinner",
+            "minimum": 0,
+            "maximum": 10080
+          }
+        },
+        {
+          "name": "PushSound",
+          "caption": "Push-Ton",
+          "width": "60px",
+          "add": "alarm",
+          "edit": {
+            "type": "Select",
+            "options": [
+              {
+                "caption": "Standardton",
+                "value": ""
+              },
+              {
+                "caption": "Alarm",
+                "value": "alarm"
+              },
+              {
+                "caption": "Glocke",
+                "value": "bell"
+              },
+              {
+                "caption": "Boom",
+                "value": "boom"
+              },
+              {
+                "caption": "Buzzer",
+                "value": "buzzer"
+              },
+              {
+                "caption": "Verbunden",
+                "value": "connected"
+              },
+              {
+                "caption": "Dunkel",
+                "value": "dark"
+              },
+              {
+                "caption": "Digital",
+                "value": "digital"
+              },
+              {
+                "caption": "Schlagzeug",
+                "value": "drums"
+              },
+              {
+                "caption": "Ente",
+                "value": "duck"
+              },
+              {
+                "caption": "Voll",
+                "value": "full"
+              },
+              {
+                "caption": "Fröhlich",
+                "value": "happy"
+              },
+              {
+                "caption": "Horn",
+                "value": "horn"
+              },
+              {
+                "caption": "Inception",
+                "value": "inception"
+              },
+              {
+                "caption": "Kazoo",
+                "value": "kazoo"
+              },
+              {
+                "caption": "Rolle",
+                "value": "roll"
+              },
+              {
+                "caption": "Sirene",
+                "value": "siren"
+              },
+              {
+                "caption": "Weltraum",
+                "value": "space"
+              },
+              {
+                "caption": "Tröpfeln",
+                "value": "trickling"
+              },
+              {
+                "caption": "Turn",
+                "value": "turn"
+              }
+            ]
+          },
+          "visible": false,
+          "save": true
+        },
+        {
+          "name": "EmailRecipients",
+          "caption": "E-Mail-Empfänger",
+          "width": "130px",
+          "add": "",
+          "edit": {
+            "type": "ValidationTextBox",
+            "maxLength": 256
+          },
+          "visible": false,
+          "save": true
+        },
+        {
+          "name": "PhoneNumbers",
+          "caption": "Telefonnummern",
+          "width": "130px",
+          "add": "",
+          "edit": {
+            "type": "ValidationTextBox",
+            "maxLength": 256
+          },
+          "visible": false,
+          "save": true
+        },
+        {
+          "name": "PushVisualizationID1",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "PushVisualizationID2",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "PushVisualizationID3",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "PushVisualizationID4",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "EchoInstanceID1",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "EchoInstanceID2",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "EchoInstanceID3",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "EchoInstanceID4",
+          "visible": false,
+          "add": 0,
+          "save": true
+        },
+        {
+          "name": "PushOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "PushOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "EmailOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "EmailOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "CallOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "CallOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "EchoOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "EchoOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "WebPushOnFirst",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "WebPushOnEscalation",
+          "default": false,
+          "visible": false,
+          "add": false,
+          "save": true
+        },
+        {
+          "name": "WebPushTargetID",
+          "default": 0,
+          "visible": false,
+          "add": 0,
+          "save": true
+        }
+      ],
+      "form": [
+        {
+          "type": "CheckBox",
+          "name": "Enabled",
+          "caption": "Aktion aktiv"
+        },
+        {
+          "type": "ValidationTextBox",
+          "name": "PushText",
+          "caption": "Alarmtext",
+          "maxLength": 256
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "SelectVariable",
+              "name": "VariableID",
+              "caption": "Zu überwachende Variable"
+            },
+            {
+              "type": "Select",
+              "name": "Operator",
+              "caption": "Bedingung",
+              "options": [
+                {
+                  "caption": "Ist gleich",
+                  "value": "=="
+                },
+                {
+                  "caption": "Ist nicht gleich",
+                  "value": "!="
+                },
+                {
+                  "caption": "Ist größer gleich",
+                  "value": ">="
+                },
+                {
+                  "caption": "Ist größer",
+                  "value": ">"
+                },
+                {
+                  "caption": "Ist kleiner",
+                  "value": "<"
+                },
+                {
+                  "caption": "Ist kleiner gleich",
+                  "value": "<="
+                },
+                {
+                  "caption": "Variable verändert",
+                  "value": "CHANGED"
+                },
+                {
+                  "caption": "Variable aktualisiert",
+                  "value": "UPDATED"
+                }
+              ],
+              "onChange": "ALM_RulesChanged($id, $Operator);"
+            },
+            {
+              "type": "ValidationTextBox",
+              "name": "CompareValue",
+              "caption": "Vergleichswert"
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "SelectVariable",
+              "name": "CompareVariableID",
+              "caption": "Vergleichsvariable"
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "caption": "Ist eine Vergleichsvariable ausgewählt, wird ihr aktueller Wert verwendet. Ohne Auswahl gilt der feste Vergleichswert."
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "NumberSpinner",
+              "name": "Delay",
+              "caption": "Verzögerung (Sek.)",
+              "minimum": 0,
+              "maximum": 86400
+            },
+            {
+              "type": "NumberSpinner",
+              "name": "EscalationMinutes",
+              "caption": "Eskalation (Min.)",
+              "minimum": 0,
+              "maximum": 10080
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "Push"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "PushOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "PushOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "Select",
+              "name": "PushSound",
+              "caption": "Push-Ton",
+              "options": [
+                {
+                  "caption": "Standardton",
+                  "value": ""
+                },
+                {
+                  "caption": "Alarm",
+                  "value": "alarm"
+                },
+                {
+                  "caption": "Glocke",
+                  "value": "bell"
+                },
+                {
+                  "caption": "Boom",
+                  "value": "boom"
+                },
+                {
+                  "caption": "Buzzer",
+                  "value": "buzzer"
+                },
+                {
+                  "caption": "Verbunden",
+                  "value": "connected"
+                },
+                {
+                  "caption": "Dunkel",
+                  "value": "dark"
+                },
+                {
+                  "caption": "Digital",
+                  "value": "digital"
+                },
+                {
+                  "caption": "Schlagzeug",
+                  "value": "drums"
+                },
+                {
+                  "caption": "Ente",
+                  "value": "duck"
+                },
+                {
+                  "caption": "Voll",
+                  "value": "full"
+                },
+                {
+                  "caption": "Fröhlich",
+                  "value": "happy"
+                },
+                {
+                  "caption": "Horn",
+                  "value": "horn"
+                },
+                {
+                  "caption": "Inception",
+                  "value": "inception"
+                },
+                {
+                  "caption": "Kazoo",
+                  "value": "kazoo"
+                },
+                {
+                  "caption": "Rolle",
+                  "value": "roll"
+                },
+                {
+                  "caption": "Sirene",
+                  "value": "siren"
+                },
+                {
+                  "caption": "Weltraum",
+                  "value": "space"
+                },
+                {
+                  "caption": "Tröpfeln",
+                  "value": "trickling"
+                },
+                {
+                  "caption": "Turn",
+                  "value": "turn"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "Select",
+              "name": "PushVisualizationID1",
+              "caption": "Push-Visualisierung 1",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "PushVisualizationID2",
+              "caption": "Push-Visualisierung 2",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "PushVisualizationID3",
+              "caption": "Push-Visualisierung 3",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "PushVisualizationID4",
+              "caption": "Push-Visualisierung 4",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "Mail"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "EmailOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EmailOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "ValidationTextBox",
+          "name": "EmailRecipients",
+          "caption": "E-Mail-Empfänger (kommagetrennte Liste)",
+          "maxLength": 256
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "Anruf"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "CallOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "CallOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "ValidationTextBox",
+          "name": "PhoneNumbers",
+          "caption": "Telefonnummern (kommagetrennte Liste)",
+          "maxLength": 256
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "Echo"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "EchoOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EchoOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "Select",
+              "name": "EchoInstanceID1",
+              "caption": "Echo-Gerät 1",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "EchoInstanceID2",
+              "caption": "Echo-Gerät 2",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "EchoInstanceID3",
+              "caption": "Echo-Gerät 3",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "type": "Select",
+              "name": "EchoInstanceID4",
+              "caption": "Echo-Gerät 4",
+              "options": [
+                {
+                  "caption": "Keine Auswahl",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Label",
+          "caption": " "
+        },
+        {
+          "type": "Label",
+          "caption": "WebPush"
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "CheckBox",
+              "name": "WebPushOnFirst",
+              "default": false,
+              "caption": "Erstmeldung"
+            },
+            {
+              "type": "CheckBox",
+              "name": "WebPushOnEscalation",
+              "default": false,
+              "caption": "Eskalation"
+            }
+          ]
+        },
+        {
+          "type": "RowLayout",
+          "items": [
+            {
+              "type": "Select",
+              "name": "WebPushTargetID",
+              "caption": "WebPush-Instanz / Skript",
+              "options": [
+                {
+                  "caption": "Automatisch (WebPushHelper)",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Label",
+      "caption": "AlarmMonitor – Modulversion 1.60"
+    },
+    {
+      "type": "Label",
+      "caption": "Überwacht IP-Symcon-Variablen mit Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann über „Aktion aktiv“ ein- oder ausgeschaltet werden. Für Push, Mail, Anruf und Echo lassen sich Erstmeldung und Eskalation unabhängig steuern. Pro Regel sind bis zu vier Push-Visualisierungen und vier Echo-Instanzen. Empfänger und Telefonnummern kommasepariert eintragen. Eskalationen wiederholen aktivierte Aktionen im eingestellten Minutenabstand; 0 deaktiviert Wiederholungen. Bei Eskalationen beginnt die Meldung mit „Eskalation: “. Unterstützt werden „Variable verändert“ und „Variable aktualisiert“. Ist eine Vergleichsvariable ausgewählt, gilt ausschließlich ihr aktueller Wert; andernfalls gilt der feste Vergleichswert. Push-Ton steht in einer eigenen Zeile."
+    },
+    {
+      "type": "Label",
+      "caption": "Bedingungen und Zeitsteuerung: Wertvergleiche prüfen den aktuellen Wert. „Variable verändert“ überwacht ausbleibende Änderungen; „Variable aktualisiert“ berücksichtigt den Zeitstempel auch bei unverändertem Wert. „Verzögerung“ bestimmt die Mindestdauer der Bedingung. „Eskalation (Min.)“ legt den Wiederholungsabstand fest; 0 deaktiviert Wiederholungen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
+    },
+    {
+      "type": "Label",
+      "caption": "Push: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Pro Regel bis zu vier Visualisierungen auswählen und einen Push-Ton festlegen. Ohne aktive Regel, aktiviertes Phasenflag oder gültige Visualisierung wird kein Push gesendet. Die Nachricht ist auf 256 Zeichen begrenzt."
+    },
+    {
+      "type": "Label",
+      "caption": "Mail: „Erstmeldung“ und „Eskalation“ steuern den Versand je Phase. Empfänger kommasepariert eintragen. Ohne gültige Empfänger wird keine Mail gesendet. Betreff und Nachricht enthalten bei Eskalationen „Eskalation: “ vor dem Alarmtext."
+    },
+    {
+      "type": "Label",
+      "caption": "Anruf: „Erstmeldung“ und „Eskalation“ steuern Anrufe je Phase. Telefonnummern kommasepariert eintragen. Ohne gültige Telefonnummer wird kein Anruf gestartet. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
+    },
+    {
+      "type": "Label",
+      "caption": "Echo: „Erstmeldung“ und „Eskalation“ steuern Ansagen je Phase. Pro Regel bis zu vier EchoRemote-Instanzen auswählen. Bei Eskalationen wird „Eskalation: “ vor den Alarmtext gesetzt."
+    },
+    {
+      "type": "Label",
+      "caption": "WebPush: „Erstmeldung“ und „Eskalation“ steuern den browser- und smartphoneübergreifenden Push-Versand je Phase an alle registrierten Mobilgeräte. Wird kein spezifisches Ziel ausgewählt, ermittelt das Modul automatisch das WebPush-Hilfsskript (WebPushHelper). Ein Klick auf die Benachrichtigung am Smartphone öffnet direkt die Visu-Nachrichtenseite."
+    }
+  ],
+  "actions": []
 }
