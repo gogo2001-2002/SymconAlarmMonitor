@@ -37,6 +37,24 @@
           "save": true
         },
         {
+          "name": "NotifyOnRecovery",
+          "caption": "Behoben melden",
+          "width": "100px",
+          "add": true,
+          "default": true,
+          "edit": {
+            "type": "CheckBox"
+          },
+          "save": true
+        },
+        {
+          "name": "RecoveryConfigured",
+          "visible": false,
+          "add": true,
+          "default": true,
+          "save": true
+        },
+        {
           "name": "PushText",
           "caption": "Alarmtext",
           "width": "300px",
@@ -363,6 +381,12 @@
           "type": "CheckBox",
           "name": "Enabled",
           "caption": "Aktion aktiv"
+        },
+        {
+          "type": "CheckBox",
+          "name": "NotifyOnRecovery",
+          "caption": "Nachricht senden, wenn der Alarm behoben ist",
+          "default": true
         },
         {
           "type": "ValidationTextBox",
@@ -772,7 +796,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.52"
+      "caption": "AlarmMonitor – Modulversion 1.55"
     },
     {
       "type": "Label",
