@@ -322,20 +322,36 @@ class AlarmMonitor extends IPSModule
                     $rulesChanged = true;
                 }
             }
-            // Bestehende Regeln erhalten die Entwarnung einmalig standardmäßig aktiviert.
-            // RecoveryConfigured unterscheidet eine alte Regel von einer bewusst abgewählten Checkbox,
-            // deren NotifyOnRecovery-Schlüssel Symcon aus der Listenzeile entfernen kann.
-            if (!array_key_exists('RecoveryConfigured', $configuredRule)) {
-                $configuredRule['NotifyOnRecovery'] = true;
-                $configuredRule['RecoveryConfigured'] = true;
-                $rulesChanged = true;
-            } else {
-                if (!array_key_exists('NotifyOnRecovery', $configuredRule)) {
-                    $configuredRule['NotifyOnRecovery'] = false;
-                    $rulesChanged = true;
+            // Migriert die frühere gemeinsame Entwarnungsoption in fünf Kanaloptionen.
+            // Der Marker sorgt dafür, dass eine von Symcon ausgelassene Checkbox nach der
+            // Migration als bewusst deaktiviert gilt und nicht erneut auf true springt.
+            $recoveryFields = ['PushOnRecovery', 'EmailOnRecovery', 'CallOnRecovery', 'EchoOnRecovery', 'WebPushOnRecovery'];
+            $recoveryChannelsConfigured = array_key_exists('RecoveryChannelsConfigured', $configuredRule)
+                && filter_var($configuredRule['RecoveryChannelsConfigured'], FILTER_VALIDATE_BOOLEAN);
+            if (!$recoveryChannelsConfigured) {
+                $legacyRecoveryEnabled = filter_var($configuredRule['NotifyOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN);
+                foreach ($recoveryFields as $recoveryField) {
+                    if (!array_key_exists($recoveryField, $configuredRule)) {
+                        $configuredRule[$recoveryField] = $legacyRecoveryEnabled;
+                        $rulesChanged = true;
+                    }
                 }
-                if ($configuredRule['RecoveryConfigured'] !== true) {
-                    $configuredRule['RecoveryConfigured'] = true;
+            } else {
+                foreach ($recoveryFields as $recoveryField) {
+                    if (!array_key_exists($recoveryField, $configuredRule)) {
+                        $configuredRule[$recoveryField] = false;
+                        $rulesChanged = true;
+                    }
+                }
+            }
+            if (($configuredRule['RecoveryChannelsConfigured'] ?? null) !== true) {
+                $configuredRule['RecoveryChannelsConfigured'] = true;
+                $rulesChanged = true;
+            }
+            // Alte gemeinsame Felder nach der Migration entfernen.
+            foreach (['NotifyOnRecovery', 'RecoveryConfigured'] as $legacyRecoveryField) {
+                if (array_key_exists($legacyRecoveryField, $configuredRule)) {
+                    unset($configuredRule[$legacyRecoveryField]);
                     $rulesChanged = true;
                 }
             }
@@ -409,7 +425,11 @@ class AlarmMonitor extends IPSModule
             $validRules[] = [
                 'Index' => (int)$index,
                 'Enabled' => $enabled,
-                'NotifyOnRecovery' => filter_var($rule['NotifyOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'PushOnRecovery' => filter_var($rule['PushOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'EmailOnRecovery' => filter_var($rule['EmailOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'CallOnRecovery' => filter_var($rule['CallOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'EchoOnRecovery' => filter_var($rule['EchoOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
+                'WebPushOnRecovery' => filter_var($rule['WebPushOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
                 'VariableID' => $variableID,
                 'Operator' => $operator,
                 'CompareValue' => $compareValue,
@@ -642,10 +662,11 @@ class AlarmMonitor extends IPSModule
             $this->StartCallsForRule($rule, false);
             $this->SendEchoAnnouncementForRule($rule, false, false);
             $this->SendWebPushForRule($rule, $now, false, false);
-        } elseif ($wasAlarm && !$shouldAlarm && ($rule['NotifyOnRecovery'] ?? true)) {
-            // Entwarnung nur bei echtem Zustandswechsel und aktivierter Regeloption.
+        } elseif ($wasAlarm && !$shouldAlarm) {
+            // Jeder Kanal prüft seine eigene Option „Behoben melden“.
             $this->SendPushForRule($rule, $now, false, true);
             $this->SendEmailForRule($rule, $now, false, true);
+            $this->StartCallsForRule($rule, false, true);
             $this->SendEchoAnnouncementForRule($rule, false, true);
             $this->SendWebPushForRule($rule, $now, false, true);
         }
@@ -735,10 +756,16 @@ class AlarmMonitor extends IPSModule
      */
     private function StartCallsForRule(array $rule, bool $escalation = false, bool $resolved = false): void
     {
-        $phaseFlag = $escalation ? 'CallOnEscalation' : 'CallOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
-            $this->SendDebug('CallNotification', 'Anruf übersprungen: Für diese Regel ist der Anruf für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
-            return;
+        if ($resolved) {
+            if (!($rule['CallOnRecovery'] ?? true)) {
+                return;
+            }
+        } else {
+            $phaseFlag = $escalation ? 'CallOnEscalation' : 'CallOnFirst';
+            if (!($rule[$phaseFlag] ?? false)) {
+                $this->SendDebug('CallNotification', 'Anruf übersprungen: Für diese Regel ist der Anruf für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
+                return;
+            }
         }
 
         $phoneText = trim((string)($rule['PhoneNumbers'] ?? ''));
@@ -798,7 +825,7 @@ class AlarmMonitor extends IPSModule
     private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false, bool $resolved = false): void
     {
         if ($resolved) {
-            if (!($rule['EchoOnFirst'] ?? false) && !($rule['EchoOnEscalation'] ?? false)) {
+            if (!($rule['EchoOnRecovery'] ?? true)) {
                 return;
             }
         } else {
@@ -858,7 +885,7 @@ class AlarmMonitor extends IPSModule
     private function SendEmailForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
     {
         if ($resolved) {
-            if (!($rule['EmailOnFirst'] ?? false) && !($rule['EmailOnEscalation'] ?? false)) {
+            if (!($rule['EmailOnRecovery'] ?? true)) {
                 return;
             }
         } else {
@@ -967,7 +994,7 @@ class AlarmMonitor extends IPSModule
     private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
     {
         if ($resolved) {
-            if (!($rule['PushOnFirst'] ?? false) && !($rule['PushOnEscalation'] ?? false)) {
+            if (!($rule['PushOnRecovery'] ?? true)) {
                 return;
             }
         } else {
@@ -1151,7 +1178,7 @@ class AlarmMonitor extends IPSModule
     private function SendWebPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $resolved = false): void
     {
         if ($resolved) {
-            if (!($rule['WebPushOnFirst'] ?? false) && !($rule['WebPushOnEscalation'] ?? false)) {
+            if (!($rule['WebPushOnRecovery'] ?? true)) {
                 return;
             }
         } else {

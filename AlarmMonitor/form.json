@@ -48,24 +48,6 @@
           "save": true
         },
         {
-          "name": "NotifyOnRecovery",
-          "caption": "Behoben melden",
-          "width": "100px",
-          "add": true,
-          "default": true,
-          "edit": {
-            "type": "CheckBox"
-          },
-          "save": true
-        },
-        {
-          "name": "RecoveryConfigured",
-          "visible": false,
-          "add": true,
-          "default": true,
-          "save": true
-        },
-        {
           "name": "PushText",
           "caption": "Alarmtext",
           "width": "300px",
@@ -345,6 +327,13 @@
           "save": true
         },
         {
+          "name": "PushOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "EmailOnFirst",
           "default": false,
           "visible": false,
@@ -356,6 +345,13 @@
           "default": false,
           "visible": false,
           "add": false,
+          "save": true
+        },
+        {
+          "name": "EmailOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         },
         {
@@ -373,6 +369,13 @@
           "save": true
         },
         {
+          "name": "CallOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "EchoOnFirst",
           "default": false,
           "visible": false,
@@ -384,6 +387,13 @@
           "default": false,
           "visible": false,
           "add": false,
+          "save": true
+        },
+        {
+          "name": "EchoOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         },
         {
@@ -401,10 +411,24 @@
           "save": true
         },
         {
+          "name": "WebPushOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "WebPushTargetID",
           "default": 0,
           "visible": false,
           "add": 0,
+          "save": true
+        },
+        {
+          "name": "RecoveryChannelsConfigured",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         }
       ],
@@ -413,12 +437,6 @@
           "type": "CheckBox",
           "name": "Enabled",
           "caption": "Aktion aktiv"
-        },
-        {
-          "type": "CheckBox",
-          "name": "NotifyOnRecovery",
-          "caption": "Nachricht senden, wenn der Alarm behoben ist",
-          "default": true
         },
         {
           "type": "ValidationTextBox",
@@ -544,6 +562,12 @@
               "name": "PushOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "PushOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -710,6 +734,12 @@
               "name": "EmailOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EmailOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -741,6 +771,12 @@
               "name": "CallOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "CallOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -772,6 +808,12 @@
               "name": "EchoOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EchoOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -846,6 +888,12 @@
               "name": "WebPushOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "WebPushOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -869,7 +917,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.63"
+      "caption": "AlarmMonitor – Modulversion 1.64"
     },
     {
       "type": "Label",
@@ -901,7 +949,7 @@
     },
     {
       "type": "Label",
-      "caption": "Behoben melden: Ist die Option aktiviert, werden beim Ende eines aktiven Alarms Entwarnungen über die für die Regel aktivierten Kanäle gesendet. Bei deaktivierter Option wird keine Behebungsmeldung versendet. Für bestehende Regeln ist die Option nach der Aktualisierung standardmäßig aktiviert."
+      "caption": "Behoben melden: In jeder Kanalgruppe separat festlegen, ob bei Alarmende eine Entwarnung gesendet wird. Die Optionen für Push, Mail, Anruf, Echo und WebPush sind für neue Regeln und migrierte bestehende Regeln standardmäßig aktiviert."
     }
   ],
   "actions": []
