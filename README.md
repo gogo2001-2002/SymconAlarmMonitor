@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.64
+AlarmMonitor – Modulversion 1.65
 
-# IP-Symcon AlarmMonitor 1.64
+# IP-Symcon AlarmMonitor 1.65
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, WebPush, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel sowie automatischer WebPush an alle registrierten Geräte.
 
@@ -29,6 +29,9 @@ Für jede Regel können WebPush-Benachrichtigungen unabhängig für „Erstmeldu
 - **Benachrichtigungsinhalt**: Enthält Alarmtext, überwachte Variable, aktuellen Messwert und Auslösezeitpunkt. Bei Eskalationen wird der Eskalationspräfix vorangestellt.
 - **Klick-Aktion**: Ein Klick oder Antippen der Push-Nachricht auf dem Mobilgerät öffnet direkt die Visu auf der Seite „Nachrichten“ (`#system-messages`).
 
+
+## Standardwert „Behoben melden“ (Version 1.65)
+Bei neu angelegten Regeln ist „Behoben melden“ für Push, E-Mail, Anruf, Echo und WebPush standardmäßig deaktiviert. Bereits gespeicherte Einstellungen bestehender Regeln werden durch diese Änderung nicht überschrieben.
 
 ## Alarmbehebung / Entwarnung (Version 1.60, kanalbezogen konfigurierbar ab 1.64)
 Für jeden Benachrichtigungskanal lässt sich **„Behoben melden“** unabhängig aktivieren: Push, E-Mail, Anruf, Echo und WebPush. Neue Regeln und bestehende Regeln nach der Migration haben die Optionen standardmäßig aktiviert. Bei Alarmende wird ein Kanal nur benachrichtigt, wenn seine eigene Option aktiv ist. Für Anrufe wird dabei die TelefonansageDirekt-Instanz mit „Entwarnung: [Text] ist behoben.“ aufgerufen.

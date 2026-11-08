@@ -328,9 +328,9 @@
         },
         {
           "name": "PushOnRecovery",
-          "default": true,
+          "default": false,
           "visible": false,
-          "add": true,
+          "add": false,
           "save": true
         },
         {
@@ -349,9 +349,9 @@
         },
         {
           "name": "EmailOnRecovery",
-          "default": true,
+          "default": false,
           "visible": false,
-          "add": true,
+          "add": false,
           "save": true
         },
         {
@@ -370,9 +370,9 @@
         },
         {
           "name": "CallOnRecovery",
-          "default": true,
+          "default": false,
           "visible": false,
-          "add": true,
+          "add": false,
           "save": true
         },
         {
@@ -391,9 +391,9 @@
         },
         {
           "name": "EchoOnRecovery",
-          "default": true,
+          "default": false,
           "visible": false,
-          "add": true,
+          "add": false,
           "save": true
         },
         {
@@ -412,9 +412,9 @@
         },
         {
           "name": "WebPushOnRecovery",
-          "default": true,
+          "default": false,
           "visible": false,
-          "add": true,
+          "add": false,
           "save": true
         },
         {
@@ -566,7 +566,7 @@
             {
               "type": "CheckBox",
               "name": "PushOnRecovery",
-              "default": true,
+              "default": false,
               "caption": "Behoben melden"
             }
           ]
@@ -738,7 +738,7 @@
             {
               "type": "CheckBox",
               "name": "EmailOnRecovery",
-              "default": true,
+              "default": false,
               "caption": "Behoben melden"
             }
           ]
@@ -775,7 +775,7 @@
             {
               "type": "CheckBox",
               "name": "CallOnRecovery",
-              "default": true,
+              "default": false,
               "caption": "Behoben melden"
             }
           ]
@@ -812,7 +812,7 @@
             {
               "type": "CheckBox",
               "name": "EchoOnRecovery",
-              "default": true,
+              "default": false,
               "caption": "Behoben melden"
             }
           ]
@@ -892,7 +892,7 @@
             {
               "type": "CheckBox",
               "name": "WebPushOnRecovery",
-              "default": true,
+              "default": false,
               "caption": "Behoben melden"
             }
           ]
@@ -917,7 +917,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.64"
+      "caption": "AlarmMonitor – Modulversion 1.65"
     },
     {
       "type": "Label",
