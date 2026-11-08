@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.62
+AlarmMonitor – Modulversion 1.64
 
-# IP-Symcon AlarmMonitor 1.62
+# IP-Symcon AlarmMonitor 1.64
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, WebPush, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel sowie automatischer WebPush an alle registrierten Geräte.
 
@@ -30,11 +30,5 @@ Für jede Regel können WebPush-Benachrichtigungen unabhängig für „Erstmeldu
 - **Klick-Aktion**: Ein Klick oder Antippen der Push-Nachricht auf dem Mobilgerät öffnet direkt die Visu auf der Seite „Nachrichten“ (`#system-messages`).
 
 
-## Alarmbehebung / Entwarnung (Version 1.60)
-Sobald ein aktiver Alarm beendet wird (Messwert wieder im Normalbereich), wird automatisch eine **Entwarnung / „Behoben“-Nachricht** über alle für die jeweilige Regel aktiven Alarmkanäle gesendet:
-- **WebPush**: Sendet eine Benachrichtigung mit „Alarm behoben: Behoben: [Text]“ an alle registrierten Handys.
-- **App-Push**: Sendet eine Push-Nachricht mit „Alarmmonitor (Behoben)“ und neutralem Benachrichtigungston an die Visu-Apps.
-- **E-Mail**: Sendet eine Entwarnungs-Mail mit dem Betreff „Alarmmanager : Behoben: [Text]“.
-- **Echo**: Gibt über die konfigurierten Echo-Lautsprecher die Ansage „Entwarnung: [Text] ist behoben.“ aus.
-
-
+## Alarmbehebung / Entwarnung (Version 1.60, kanalbezogen konfigurierbar ab 1.64)
+Für jeden Benachrichtigungskanal lässt sich **„Behoben melden“** unabhängig aktivieren: Push, E-Mail, Anruf, Echo und WebPush. Neue Regeln und bestehende Regeln nach der Migration haben die Optionen standardmäßig aktiviert. Bei Alarmende wird ein Kanal nur benachrichtigt, wenn seine eigene Option aktiv ist. Für Anrufe wird dabei die TelefonansageDirekt-Instanz mit „Entwarnung: [Text] ist behoben.“ aufgerufen.

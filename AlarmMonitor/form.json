@@ -327,6 +327,13 @@
           "save": true
         },
         {
+          "name": "PushOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "EmailOnFirst",
           "default": false,
           "visible": false,
@@ -338,6 +345,13 @@
           "default": false,
           "visible": false,
           "add": false,
+          "save": true
+        },
+        {
+          "name": "EmailOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         },
         {
@@ -355,6 +369,13 @@
           "save": true
         },
         {
+          "name": "CallOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "EchoOnFirst",
           "default": false,
           "visible": false,
@@ -366,6 +387,13 @@
           "default": false,
           "visible": false,
           "add": false,
+          "save": true
+        },
+        {
+          "name": "EchoOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         },
         {
@@ -383,10 +411,24 @@
           "save": true
         },
         {
+          "name": "WebPushOnRecovery",
+          "default": true,
+          "visible": false,
+          "add": true,
+          "save": true
+        },
+        {
           "name": "WebPushTargetID",
           "default": 0,
           "visible": false,
           "add": 0,
+          "save": true
+        },
+        {
+          "name": "RecoveryChannelsConfigured",
+          "default": true,
+          "visible": false,
+          "add": true,
           "save": true
         }
       ],
@@ -520,6 +562,12 @@
               "name": "PushOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "PushOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -686,6 +734,12 @@
               "name": "EmailOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EmailOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -717,6 +771,12 @@
               "name": "CallOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "CallOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -748,6 +808,12 @@
               "name": "EchoOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "EchoOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -822,6 +888,12 @@
               "name": "WebPushOnEscalation",
               "default": false,
               "caption": "Eskalation"
+            },
+            {
+              "type": "CheckBox",
+              "name": "WebPushOnRecovery",
+              "default": true,
+              "caption": "Behoben melden"
             }
           ]
         },
@@ -845,7 +917,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.60"
+      "caption": "AlarmMonitor – Modulversion 1.64"
     },
     {
       "type": "Label",
@@ -874,6 +946,10 @@
     {
       "type": "Label",
       "caption": "WebPush: „Erstmeldung“ und „Eskalation“ steuern den browser- und smartphoneübergreifenden Push-Versand je Phase an alle registrierten Mobilgeräte. Wird kein spezifisches Ziel ausgewählt, ermittelt das Modul automatisch das WebPush-Hilfsskript (WebPushHelper). Ein Klick auf die Benachrichtigung am Smartphone öffnet direkt die Visu-Nachrichtenseite."
+    },
+    {
+      "type": "Label",
+      "caption": "Behoben melden: In jeder Kanalgruppe separat festlegen, ob bei Alarmende eine Entwarnung gesendet wird. Die Optionen für Push, Mail, Anruf, Echo und WebPush sind für neue Regeln und migrierte bestehende Regeln standardmäßig aktiviert."
     }
   ],
   "actions": []
