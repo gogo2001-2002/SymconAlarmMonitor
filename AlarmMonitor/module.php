@@ -312,6 +312,19 @@ class AlarmMonitor extends IPSModule
                     $rulesChanged = true;
                 }
             }
+            // Bestehende Regeln erhalten die Entwarnung einmalig standardmäßig aktiviert.
+            // Nach der Migration kennzeichnet RecoveryConfigured eine bewusste Auswahl;
+            // fehlende Checkbox-Werte bedeuten dann false.
+            if (!array_key_exists('RecoveryConfigured', $configuredRule)) {
+                $configuredRule['NotifyOnRecovery'] = true;
+                $configuredRule['RecoveryConfigured'] = true;
+                $rulesChanged = true;
+            } else {
+                if (!array_key_exists('NotifyOnRecovery', $configuredRule)) {
+                    $configuredRule['NotifyOnRecovery'] = false;
+                    $rulesChanged = true;
+                }
+            }
             // Vergleichsquelle wird allein durch die Auswahl bestimmt:
             // Vergleichsvariable > 0 => Variablenwert, sonst fester Vergleichswert.
             if (!array_key_exists('CompareVariableID', $configuredRule)) {
@@ -375,6 +388,7 @@ class AlarmMonitor extends IPSModule
             $validRules[] = [
                 'Index' => (int)$index,
                 'Enabled' => $enabled,
+                'NotifyOnRecovery' => filter_var($rule['NotifyOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
                 'VariableID' => $variableID,
                 'Operator' => $operator,
                 'CompareValue' => $compareValue,
@@ -602,6 +616,12 @@ class AlarmMonitor extends IPSModule
             $this->SendEmailForRule($rule, time(), false);
             $this->StartCallsForRule($rule, false);
             $this->SendEchoAnnouncementForRule($rule, false);
+        } elseif ($wasAlarm && !$shouldAlarm && ($rule['NotifyOnRecovery'] ?? true)) {
+            // Entwarnung nur bei einem echten Zustandswechsel und nur wenn aktiviert.
+            $this->SendPushForRule($rule, time(), false, true);
+            $this->SendEmailForRule($rule, time(), false, true);
+            $this->StartCallsForRule($rule, false, true);
+            $this->SendEchoAnnouncementForRule($rule, false, true);
         }
     }
 
@@ -686,10 +706,10 @@ class AlarmMonitor extends IPSModule
      * Startet optional ausgehende Anrufe über die separat installierte TelefonansageDirekt-Instanz.
      * Telefonnummern werden kommasepariert angegeben; die Warteschlange verwaltet das Anrufmodul selbst.
      */
-    private function StartCallsForRule(array $rule, bool $escalation = false): void
+    private function StartCallsForRule(array $rule, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'CallOnEscalation' : 'CallOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
+        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
             $this->SendDebug('CallNotification', 'Anruf übersprungen: Für diese Regel ist der Anruf für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
             return;
         }
@@ -716,7 +736,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
+        $alarmText = $recovery ? 'Alarm behoben: ' . $alarmText : $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
         foreach ($phoneNumbers as $phoneNumber) {
             try {
                 // Öffentliche API des eigenständigen TelefonansageDirekt-Moduls:
@@ -748,10 +768,10 @@ class AlarmMonitor extends IPSModule
     /**
      * Gibt den Alarmtext optional über Echo Remote 2 auf den pro Regel ausgewählten Echo-Geräten aus.
      */
-    private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false): void
+    private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'EchoOnEscalation' : 'EchoOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
+        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
             $this->SendDebug('EchoAnnouncement', 'Echo-Ausgabe übersprungen: Für diese Regel ist Echo für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
             return;
         }
@@ -771,7 +791,7 @@ class AlarmMonitor extends IPSModule
         if ($alarmText === '') {
             $alarmText = 'Alarm';
         }
-        $alarmText = $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
+        $alarmText = $recovery ? 'Alarm behoben: ' . $alarmText : $this->FormatNotificationAlarmText($alarmText, $escalation, $rule);
 
         $instanceIDs = array_values(array_unique(array_filter(
             array_map(static fn(string $id): int => (int)trim($id), explode(',', $instanceText)),
@@ -802,11 +822,11 @@ class AlarmMonitor extends IPSModule
      * Sendet beim erstmaligen Auslösen der Bedingung optional eine E-Mail.
      * Die SMTP-Instanz ist global konfiguriert; Empfänger und Nachrichtentext sind regelbezogen.
      */
-    private function SendEmailForRule(array $rule, int $alarmSince = 0, bool $escalation = false): void
+    private function SendEmailForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $recovery = false): void
     {
         // Die Phasenflags allein bestimmen, ob eine E-Mail bei Erstmeldung oder Eskalation gesendet wird.
         $phaseFlag = $escalation ? 'EmailOnEscalation' : 'EmailOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
+        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
             $this->SendDebug('EmailNotification', 'E-Mail übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
             return;
         }
@@ -830,7 +850,7 @@ class AlarmMonitor extends IPSModule
         }
 
         $pushText = trim((string)($rule['PushText'] ?? ''));
-        $notificationText = $this->FormatNotificationAlarmText($pushText, $escalation, $rule);
+        $notificationText = $recovery ? 'Alarm behoben: ' . $pushText : $this->FormatNotificationAlarmText($pushText, $escalation, $rule);
 
         $variableID = (int)($rule['VariableID'] ?? 0);
         if ($variableID <= 0 || !IPS_VariableExists($variableID)) {
@@ -849,7 +869,7 @@ class AlarmMonitor extends IPSModule
         $subjectText = preg_replace('/[\r\n]+/', ' ', $notificationText) ?? $notificationText;
         $subject = 'Alarmmanager : ' . trim($subjectText);
         $bodyLines = [
-            'ALARM AUSGELÖST',
+            $recovery ? 'ALARM BEHOBEN' : 'ALARM AUSGELÖST',
             '================',
             '',
             'Meldung:',
@@ -861,7 +881,7 @@ class AlarmMonitor extends IPSModule
             'Bedingung: ' . $condition,
             'Verzögerung: ' . $delay . ' Sekunden',
             '',
-            'Zeitpunkt des Alarms: ' . $triggerTime,
+            ($recovery ? 'Zeitpunkt der Entwarnung: ' : 'Zeitpunkt des Alarms: ') . $triggerTime,
             'Aktueller Variablenwert: ' . $actualValue
         ];
         $body = implode("\r\n", $bodyLines);
@@ -906,10 +926,10 @@ class AlarmMonitor extends IPSModule
         }
     }
 
-    private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false): void
+    private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'PushOnEscalation' : 'PushOnFirst';
-        if (!($rule[$phaseFlag] ?? false)) {
+        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
             $this->SendDebug('PushNotification', 'Push übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
             return;
         }
@@ -938,7 +958,7 @@ class AlarmMonitor extends IPSModule
             return;
         }
 
-        $pushText = $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation, $rule);
+        $pushText = $recovery ? 'Alarm behoben: ' . trim((string)($rule['PushText'] ?? '')) : $this->FormatNotificationAlarmText((string)($rule['PushText'] ?? ''), $escalation, $rule);
         $variableName = $this->TruncateText(IPS_GetName($variableID), 25);
         $condition = $this->ConditionName((string)($rule['Operator'] ?? '=='), (string)($rule['CompareValue'] ?? ''), ((int)($rule['CompareVariableID'] ?? 0) > 0), (int)($rule['CompareVariableID'] ?? 0));
         $condition = $this->TruncateText($condition, 24);
