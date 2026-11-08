@@ -709,7 +709,8 @@ class AlarmMonitor extends IPSModule
     private function StartCallsForRule(array $rule, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'CallOnEscalation' : 'CallOnFirst';
-        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
+        if (($recovery && !($rule['CallOnFirst'] ?? false) && !($rule['CallOnEscalation'] ?? false))
+            || (!$recovery && !($rule[$phaseFlag] ?? false))) {
             $this->SendDebug('CallNotification', 'Anruf übersprungen: Für diese Regel ist der Anruf für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
             return;
         }
@@ -771,7 +772,8 @@ class AlarmMonitor extends IPSModule
     private function SendEchoAnnouncementForRule(array $rule, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'EchoOnEscalation' : 'EchoOnFirst';
-        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
+        if (($recovery && !($rule['EchoOnFirst'] ?? false) && !($rule['EchoOnEscalation'] ?? false))
+            || (!$recovery && !($rule[$phaseFlag] ?? false))) {
             $this->SendDebug('EchoAnnouncement', 'Echo-Ausgabe übersprungen: Für diese Regel ist Echo für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' deaktiviert.', 0);
             return;
         }
@@ -826,7 +828,8 @@ class AlarmMonitor extends IPSModule
     {
         // Die Phasenflags allein bestimmen, ob eine E-Mail bei Erstmeldung oder Eskalation gesendet wird.
         $phaseFlag = $escalation ? 'EmailOnEscalation' : 'EmailOnFirst';
-        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
+        if (($recovery && !($rule['EmailOnFirst'] ?? false) && !($rule['EmailOnEscalation'] ?? false))
+            || (!$recovery && !($rule[$phaseFlag] ?? false))) {
             $this->SendDebug('EmailNotification', 'E-Mail übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
             return;
         }
@@ -929,7 +932,8 @@ class AlarmMonitor extends IPSModule
     private function SendPushForRule(array $rule, int $alarmSince = 0, bool $escalation = false, bool $recovery = false): void
     {
         $phaseFlag = $escalation ? 'PushOnEscalation' : 'PushOnFirst';
-        if (!$recovery && !($rule[$phaseFlag] ?? false)) {
+        if (($recovery && !($rule['PushOnFirst'] ?? false) && !($rule['PushOnEscalation'] ?? false))
+            || (!$recovery && !($rule[$phaseFlag] ?? false))) {
             $this->SendDebug('PushNotification', 'Push übersprungen: Versand für ' . ($escalation ? 'Eskalationen' : 'die Erstmeldung') . ' ist für diese Regel deaktiviert.', 0);
             return;
         }
