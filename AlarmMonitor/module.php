@@ -322,6 +322,23 @@ class AlarmMonitor extends IPSModule
                     $rulesChanged = true;
                 }
             }
+            // Bestehende Regeln erhalten die Entwarnung einmalig standardmäßig aktiviert.
+            // RecoveryConfigured unterscheidet eine alte Regel von einer bewusst abgewählten Checkbox,
+            // deren NotifyOnRecovery-Schlüssel Symcon aus der Listenzeile entfernen kann.
+            if (!array_key_exists('RecoveryConfigured', $configuredRule)) {
+                $configuredRule['NotifyOnRecovery'] = true;
+                $configuredRule['RecoveryConfigured'] = true;
+                $rulesChanged = true;
+            } else {
+                if (!array_key_exists('NotifyOnRecovery', $configuredRule)) {
+                    $configuredRule['NotifyOnRecovery'] = false;
+                    $rulesChanged = true;
+                }
+                if ($configuredRule['RecoveryConfigured'] !== true) {
+                    $configuredRule['RecoveryConfigured'] = true;
+                    $rulesChanged = true;
+                }
+            }
             // Vergleichsquelle wird allein durch die Auswahl bestimmt:
             // Vergleichsvariable > 0 => Variablenwert, sonst fester Vergleichswert.
             if (!array_key_exists('CompareVariableID', $configuredRule)) {
@@ -392,6 +409,7 @@ class AlarmMonitor extends IPSModule
             $validRules[] = [
                 'Index' => (int)$index,
                 'Enabled' => $enabled,
+                'NotifyOnRecovery' => filter_var($rule['NotifyOnRecovery'] ?? true, FILTER_VALIDATE_BOOLEAN),
                 'VariableID' => $variableID,
                 'Operator' => $operator,
                 'CompareValue' => $compareValue,
@@ -624,7 +642,8 @@ class AlarmMonitor extends IPSModule
             $this->StartCallsForRule($rule, false);
             $this->SendEchoAnnouncementForRule($rule, false, false);
             $this->SendWebPushForRule($rule, $now, false, false);
-        } elseif ($wasAlarm && !$shouldAlarm) {
+        } elseif ($wasAlarm && !$shouldAlarm && ($rule['NotifyOnRecovery'] ?? true)) {
+            // Entwarnung nur bei echtem Zustandswechsel und aktivierter Regeloption.
             $this->SendPushForRule($rule, $now, false, true);
             $this->SendEmailForRule($rule, $now, false, true);
             $this->SendEchoAnnouncementForRule($rule, false, true);

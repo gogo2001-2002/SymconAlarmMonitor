@@ -1,6 +1,6 @@
-AlarmMonitor – Modulversion 1.62
+AlarmMonitor – Modulversion 1.63
 
-# IP-Symcon AlarmMonitor 1.62
+# IP-Symcon AlarmMonitor 1.63
 
 Überwacht Variablen anhand von Bedingungen, Vergleichswerten und Verzögerungen. Jede Regel kann aktiviert/deaktiviert werden. Push, WebPush, Mail, Anruf und Echo lassen sich getrennt für Erstmeldung und Eskalation steuern. Unterstützt werden bis zu vier Push-Visualisierungen und vier EchoRemote-Instanzen je Regel sowie automatischer WebPush an alle registrierten Geräte.
 
@@ -30,11 +30,10 @@ Für jede Regel können WebPush-Benachrichtigungen unabhängig für „Erstmeldu
 - **Klick-Aktion**: Ein Klick oder Antippen der Push-Nachricht auf dem Mobilgerät öffnet direkt die Visu auf der Seite „Nachrichten“ (`#system-messages`).
 
 
-## Alarmbehebung / Entwarnung (Version 1.60)
-Sobald ein aktiver Alarm beendet wird (Messwert wieder im Normalbereich), wird automatisch eine **Entwarnung / „Behoben“-Nachricht** über alle für die jeweilige Regel aktiven Alarmkanäle gesendet:
-- **WebPush**: Sendet eine Benachrichtigung mit „Alarm behoben: Behoben: [Text]“ an alle registrierten Handys.
-- **App-Push**: Sendet eine Push-Nachricht mit „Alarmmonitor (Behoben)“ und neutralem Benachrichtigungston an die Visu-Apps.
-- **E-Mail**: Sendet eine Entwarnungs-Mail mit dem Betreff „Alarmmanager : Behoben: [Text]“.
-- **Echo**: Gibt über die konfigurierten Echo-Lautsprecher die Ansage „Entwarnung: [Text] ist behoben.“ aus.
+## Alarmbehebung / Entwarnung (Version 1.60, konfigurierbar ab 1.63)
+Beim Ende eines aktiven Alarms werden Entwarnungen über die für die Regel aktivierten Alarmkanäle gesendet, wenn **„Behoben melden“** aktiviert ist. Die Option ist bei neuen Regeln und nach der Migration bestehender Regeln standardmäßig eingeschaltet. Wird sie deaktiviert, werden keine Behebungsmeldungen versendet.
 
-
+- **WebPush**: Benachrichtigung mit „Alarm behoben“ und dem Alarmtext an registrierte Handys.
+- **App-Push**: Push-Nachricht mit „Alarmmonitor (Behoben)“ und neutralem Benachrichtigungston.
+- **E-Mail**: Entwarnungs-Mail mit „Behoben“ im Betreff.
+- **Echo**: Ansage „Entwarnung: [Text] ist behoben.“

@@ -48,6 +48,24 @@
           "save": true
         },
         {
+          "name": "NotifyOnRecovery",
+          "caption": "Behoben melden",
+          "width": "100px",
+          "add": true,
+          "default": true,
+          "edit": {
+            "type": "CheckBox"
+          },
+          "save": true
+        },
+        {
+          "name": "RecoveryConfigured",
+          "visible": false,
+          "add": true,
+          "default": true,
+          "save": true
+        },
+        {
           "name": "PushText",
           "caption": "Alarmtext",
           "width": "300px",
@@ -395,6 +413,12 @@
           "type": "CheckBox",
           "name": "Enabled",
           "caption": "Aktion aktiv"
+        },
+        {
+          "type": "CheckBox",
+          "name": "NotifyOnRecovery",
+          "caption": "Nachricht senden, wenn der Alarm behoben ist",
+          "default": true
         },
         {
           "type": "ValidationTextBox",
@@ -845,7 +869,7 @@
     },
     {
       "type": "Label",
-      "caption": "AlarmMonitor – Modulversion 1.60"
+      "caption": "AlarmMonitor – Modulversion 1.63"
     },
     {
       "type": "Label",
@@ -874,6 +898,10 @@
     {
       "type": "Label",
       "caption": "WebPush: „Erstmeldung“ und „Eskalation“ steuern den browser- und smartphoneübergreifenden Push-Versand je Phase an alle registrierten Mobilgeräte. Wird kein spezifisches Ziel ausgewählt, ermittelt das Modul automatisch das WebPush-Hilfsskript (WebPushHelper). Ein Klick auf die Benachrichtigung am Smartphone öffnet direkt die Visu-Nachrichtenseite."
+    },
+    {
+      "type": "Label",
+      "caption": "Behoben melden: Ist die Option aktiviert, werden beim Ende eines aktiven Alarms Entwarnungen über die für die Regel aktivierten Kanäle gesendet. Bei deaktivierter Option wird keine Behebungsmeldung versendet. Für bestehende Regeln ist die Option nach der Aktualisierung standardmäßig aktiviert."
     }
   ],
   "actions": []
