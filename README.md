@@ -1,4 +1,4 @@
-AlarmMonitor – Modulversion 1.54
+AlarmMonitor – Modulversion 1.55
 
 # IP-Symcon AlarmMonitor 1.54
 
@@ -20,3 +20,7 @@ Bei neu angelegten Regeln sind die Phasenflags „Erstmeldung“ und „Eskalati
 
 ## Eskalationszähler (Version 1.54)
 Die Variable „Eskalation“ ist ein Integer-Zähler. Sie wird bei jeder ausgelösten Eskalationsbenachrichtigung um eins erhöht und beim Zurücksetzen des Alarms auf 0 gesetzt. Vorhandene boolesche Eskalationsvariablen werden automatisch durch Integer-Variablen ersetzt.
+
+## Entwarnung (Version 1.55)
+
+Pro Überwachungsregel kann mit **Behoben melden** festgelegt werden, ob beim Übergang von Alarm auf Normalzustand eine Entwarnung versendet wird. Die Option ist für neue und bestehende Regeln standardmäßig aktiviert. Bei deaktivierter Option wird der Alarmstatus weiterhin zurückgesetzt, aber keine Entwarnung versendet. Die Entwarnung nutzt die für die Regel konfigurierten Push-, E-Mail-, Telefon- und Echo-Ziele; die Erstmeldungs-/Eskalations-Checkboxen bleiben ausschließlich für diese Phasen zuständig.
